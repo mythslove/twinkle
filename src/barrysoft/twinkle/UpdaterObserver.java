@@ -109,9 +109,11 @@ public interface UpdaterObserver
 	/**
 	 * This is called when extraction of the update file(s)
 	 * has ended and the application must be restarted.
+	 * 
+	 * @param source The originating {@link UpdateRequest}
 	 */
 	
-	void restartRequired();
+	void restartRequired(UpdateRequest source);
 	
 	/**
 	 * This is called when no available updates have been found.

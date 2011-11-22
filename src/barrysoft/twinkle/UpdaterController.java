@@ -171,13 +171,13 @@ public class UpdaterController implements UpdaterObserver, UpdaterViewObserver
 		view.checkingEnded(source);
 	}
 
-	public void restartRequired()
+	public void restartRequired(UpdateRequest source)
 	{
-		view.restartRequired();
+		view.restartRequired(source);
 	}
 
-	public void restartRequested()
+	public void restartRequested(UpdateRequest source)
 	{
-		updater.restart();
+		updater.restart(source);
 	}
 }

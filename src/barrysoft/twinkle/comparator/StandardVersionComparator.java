@@ -183,7 +183,7 @@ public class StandardVersionComparator implements VersionComparator
 		else if (Character.isLetter(c) || Character.isWhitespace(c))
 			return CharacterType.STRING;
 		
-		throw new RuntimeException("Unknown character type");
+		throw new RuntimeException("Unknown character type: " + c);
 	}
 	
 	protected List<String> splitVersionString(String version)

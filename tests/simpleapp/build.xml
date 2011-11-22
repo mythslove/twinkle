@@ -1,26 +1,11 @@
 <?xml version="1.0"?>
-<project name="twinkle" default="default">
+<project name="twinkletest" default="default">
 
 	<!-- ============================================ -->
 	<!-- Load build properties      				  -->
 	<!-- ============================================ -->
 
 	<property file="info.properties" />
-
-	<condition property="os.mac">
-		<os family="mac"/>
-	</condition>
-
-	<!-- ============================================ -->
-	<!-- Load external tasks						  -->
-	<!-- ============================================ -->
-
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-		<classpath>
-			<pathelement location="${project.antdir}/ant-contrib-1.0b3.jar" />
-		</classpath>
-	</taskdef>
-
 
 	<!-- ============================================ -->
 	<!-- Specify the classpath      				  -->
@@ -36,13 +21,13 @@
 	<!-- The default target         				  -->
 	<!-- ============================================ -->
 
-	<target name="default" depends="dist"/>
+	<target name="default" depends="dist, app-cast"/>
 
 	<!-- ============================================ -->
 	<!-- Compile the java sources to classes          -->
 	<!-- ============================================ -->
 
-	<target name="compile" depends="version" 
+	<target name="compile"
 		description="Compile the Java sources to class files"> 
 
 		<javac srcdir="${project.source}" destdir="${project.bin}" classpathref="project.classpath"/>
@@ -53,10 +38,14 @@
 	<!-- Pack the java classes in a jar file          -->
 	<!-- ============================================ -->
 
-	<target name="jar" depends="compile" 
+	<target name="jar" depends="compile, version" 
 		description="Packs classes and dependencies into a jar">
 
 		<mkdir dir="${project.deploy.jar}" />
+
+		<delete quiet="true">
+			<fileset dir="${project.deploy.jar}" includes="**/*"/>
+		</delete>
 
 		<pathconvert property="jar.classpath" pathsep=" ">
 			<path refid="project.classpath" />
@@ -70,8 +59,16 @@
 			<fileset dir="${project.bin}" excludes="${project.pluginptrn}/** **/tests/**" />
 			<manifest>
 				<attribute name="Created-By" value="${info.software.author}" />
+				<attribute name="Class-Path" value="${jar.classpath}" />
+				<attribute name="Main-Class" value="${project.main}"/>
 			</manifest>
 		</jar>
+
+		<copy todir="${project.deploy.jar}/${project.deploy.jarlibs}">
+			<fileset dir="${project.libdir}">
+				<include name="${project.libs}" />
+			</fileset>
+		</copy>
 
 		<copy todir="${project.deploy.jar}">
 			<fileset dir="${basedir}">
@@ -89,23 +86,55 @@
 		description="Packs the generated files for distribution">
 
 		<zip destfile="${project.deploy}/${ant.project.name}_jar.zip">
-			<zipfileset dir="${project.deploy.jar}" />
+			<zipfileset dir="${project.deploy.jar}">
+				<exclude name="plugins.cache" />
+			</zipfileset>
 		</zip>
 
 	</target>
-
-	<target name="docs"
-		description="Builds the Javadoc documentation for the project">
-
-		<javadoc packagenames="barrysoft.jsubsgetter.*"
-			sourcepath="${project.source}" 
-			destdir="${project.docs.dir}"
-			classpathref="project.classpath" 
-            author="true"
-            version="true"
-            use="true"
-			windowtitle="${project.name} Documentation"/>
-
+	
+	<!-- ============================================ -->
+	<!-- Creates the AppCast feed for Twinkle         -->
+	<!-- ============================================ -->
+	
+	<target name="app-cast" depends="jar" 
+		description="Creates the App Cast feed required for remote update">
+		
+		<checksum file="${project.deploy}/${ant.project.name}_jar.zip"
+			property="file.md5" />
+		
+		<exec executable="${project.appcast.dsasign}" failonerror="false" outputproperty="file.dsa">
+			<arg value="${project.deploy}/${ant.project.name}_jar.zip" />
+			<arg value="${project.appcast.dsakey}" />
+		</exec>
+		
+		<length file="${project.deploy}/${ant.project.name}_jar.zip" property="file.size"/>
+		
+		<tstamp>
+			<format property="file.date" pattern="EEE, dd MMM yyyy HH:mm:ss Z" />
+		</tstamp>
+		
+		<copy overwrite="true" file="${project.deploy}/${ant.project.name}_jar.zip" 
+			tofile="${project.deploy.web}/dist/${ant.project.name}.zip" />
+		
+		<copy overwrite="true" file="${project.res.dir}/${project.appcast.file}" 
+			tofile="${project.deploy.web}/${project.appcast.file}">
+			
+			<filterset begintoken="@@" endtoken="@@">
+				<filter token="VERSION" value="${build.number}" />
+				<filter token="UPDATEFILE" value="dist/${ant.project.name}.zip" />
+				<filter token="MD5SUM" value="${file.md5}" />
+				<filter token="DSASIGN" value="${file.dsa}" />
+				<filter token="APPNAME" value="${info.software.name}" />
+				<filter token="HOST" value="${project.appcast.host}" />
+				<filter token="VERSIONSH" value="${info.version}" />
+				<filter token="UPDATESIZE" value="${file.size}" />
+				<filter token="ACFILE" value="${project.appcast.file}" />
+				<filter token="DATE" value="${file.date}" />
+			</filterset>
+			
+		</copy>
+	
 	</target>
 
 	<!-- ============================================ -->
@@ -124,7 +153,7 @@
 		</delete>
 
 	</target>
-
+	
 	<!-- ============================================ -->
 	<!-- Embedd version and build informations        -->
 	<!-- ============================================ -->

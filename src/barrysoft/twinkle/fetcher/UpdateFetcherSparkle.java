@@ -70,9 +70,9 @@ public class UpdateFetcherSparkle implements UpdateFetcher
 		try {
 			feed = sfi.build(new XmlReader(feedUrl));
 		} catch (IllegalArgumentException e) {
-			throw new UpdateException("Can't fetch update feed", e);
+			throw new UpdateException("Unknown type of update feed", e);
 		} catch (FeedException e) {
-			throw new UpdateException("Can't fetch update feed", e);
+			throw new UpdateException("Error while parsing update feed", e);
 		} catch (IOException e) {
 			throw new UpdateException("Can't fetch update feed", e);
 		}

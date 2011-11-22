@@ -11,6 +11,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.log4j.Logger;
+
 import barrysoft.common.Observable;
 import barrysoft.resources.ResourcesManager;
 import barrysoft.twinkle.archives.ArchiveHandler;
@@ -28,13 +30,11 @@ import barrysoft.web.ProgressListener;
 import barrysoft.web.WebDownloader;
 
 /**
- * <p>
- * This is the class in charge of the update process.
- * </p><p>
- * Update informations are obtained by parsing an 
+ * <p>This is the class in charge of the update process.</p>
+ * 
+ * <p>Update informations are obtained by parsing an 
  * <a href="http://connectedflow.com/appcasting/">App-Cast</a> 
- * feed very much like the Sparkle library for Mac OS X.
- * </p>
+ * feed very much like the Sparkle library for Mac OS X.</p>
  * 
  * @author Daniele Rapagnani
  */
@@ -131,14 +131,26 @@ public class Updater
 		
 		fireUpdateCompleted();
 		
-		fireRestartRequired();
+		fireRestartRequired(source);
 		
 		setCurrentVersion(null);
 	}
 	
-	public void restart()
+	public void restart(UpdateRequest source)
 	{
-		//RestartersManager.getDefault().restart(Runner.class);
+		if (source.getMainClass() == null || source.getMainClass().isEmpty())
+			return;
+		
+		Class<?> c;
+		try {
+			c = Class.forName(source.getMainClass());
+		} catch (ClassNotFoundException e) {
+			Logger.getLogger(getClass()).
+				error("Can't find main class '"+source.getMainClass()+"' to be restarted.");
+			return;
+		}
+		
+		RestartersFactory.getDefault().restart(c);
 	}
 	
 	public boolean cancelUpdate()
@@ -268,10 +280,10 @@ public class Updater
 		return newer;
 	}
 	
-	protected void fireRestartRequired()
+	protected void fireRestartRequired(UpdateRequest source)
 	{
 		for (UpdaterObserver observer : observers)
-			observer.restartRequired();
+			observer.restartRequired(source);
 	}
 	
 	protected void fireChecking(UpdateRequest source, boolean ended)

@@ -41,6 +41,7 @@ public class UpdateRequest
 	private final VersionType			versionType;
 	private final URL 					url;
 	private final File					destinationDirectory;
+	private final String				mainClass;
 	private final ApplicationInfo		applicationInfo;
 	private final PublicKey				dsaPublicKey;
 	
@@ -73,6 +74,7 @@ public class UpdateRequest
 	(
 		VersionType 		versionType,
 		ApplicationInfo 	applicationInfo,
+		String				mainClass,
 		URL 				url,
 		File 				destinationDirectory,
 		File 				dsaPublicKeyFile
@@ -81,6 +83,7 @@ public class UpdateRequest
 	{
 		this(versionType, 
 			applicationInfo, 
+			mainClass,
 			url, 
 			destinationDirectory, 
 			(dsaPublicKeyFile != null ? new FileInputStream(dsaPublicKeyFile) : null));
@@ -114,6 +117,7 @@ public class UpdateRequest
 	(
 		VersionType 	versionType,
 		ApplicationInfo applicationInfo, 
+		String			mainClass,
 		URL 			url, 
 		File 			destinationDirectory, 
 		InputStream 	dsaPublicKey
@@ -121,6 +125,7 @@ public class UpdateRequest
 	{
 		this.url = url;
 		this.destinationDirectory = destinationDirectory;
+		this.mainClass = mainClass;
 		this.applicationInfo = applicationInfo;
 		this.versionType = versionType;
 		
@@ -223,6 +228,11 @@ public class UpdateRequest
 	public PublicKey getDsaPublicKey()
 	{
 		return dsaPublicKey;
+	}
+
+	public String getMainClass()
+	{
+		return mainClass;
 	}
 	
 }

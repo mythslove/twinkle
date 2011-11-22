@@ -28,8 +28,11 @@ public interface UpdaterViewObserver
 	
 	/**
 	 * Called when the user agreed to restart the application	
+	 * 
+	 * @param source	The source {@link UpdateRequest} that was used
+	 * 					to check for available updates
 	 */
-	void restartRequested();
+	void restartRequested(UpdateRequest source);
 	
 	/**
 	 * Called when the user has chosen <b>not</b> to proceed

@@ -153,10 +153,10 @@ public class UpdaterViewSwing implements UpdaterView
 			observer.userCanceledUpdate();
 	}
 	
-	protected void fireRestartRequested()
+	protected void fireRestartRequested(UpdateRequest source)
 	{
 		for	(UpdaterViewObserver observer : observers)
-			observer.restartRequested();
+			observer.restartRequested(source);
 	}
 	
 	public void extractionEnded(File archiveFile)
@@ -202,10 +202,10 @@ public class UpdaterViewSwing implements UpdaterView
 		dispatcher.dispatch(UpdaterEventType.CHECKING_UPDATES, source);
 	}
 
-	public void restartRequired()
+	public void restartRequired(UpdateRequest source)
 	{
 		if (askForRestart())
-			fireRestartRequested();
+			fireRestartRequested(source);
 	}
 	
 	protected boolean askForRestart()
