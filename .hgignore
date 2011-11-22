@@ -1,0 +1,24 @@
+syntax: glob
+*.swf
+*.swc
+*~
+*.zip
+*.jar
+*.png
+*.class
+*.app
+*.log
+*.psd
+*.ded
+*.bak
+*.cache
+*.jnilib
+*.deb
+*.exe
+*.conf
+*.tar.gz
+docs
+*__MACOSX*
+*.DS_Store*
+dsa_priv.pem
+log.txt
