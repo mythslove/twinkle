@@ -3,10 +3,14 @@ package barrysoft.twinkle.view.gui;
 import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -22,8 +26,6 @@ import barrysoft.resources.ResourcesManager;
 import barrysoft.twinkle.UpdateRequest;
 import barrysoft.twinkle.UpdateVersion;
 import barrysoft.twinkle.view.UpdaterEventType;
-
-import net.miginfocom.swing.MigLayout;
 
 public class UpdateAvailableDialog extends JDialog 
 {
@@ -58,61 +60,117 @@ public class UpdateAvailableDialog extends JDialog
 		icon.setIcon(new ImageIcon(ResourcesManager.getResources().
 				getIconURL("software-update-available")));
 		
-		JPanel contentPanel = new JPanel(new MigLayout("fill"));
+		JPanel contentPanel = new JPanel(new GridBagLayout());
 		
-		JPanel topPanel = new JPanel(new MigLayout("insets 0"));
+		JPanel topPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints g = new GridBagConstraints();
+		g.fill = GridBagConstraints.HORIZONTAL;
+		g.anchor = GridBagConstraints.WEST;
+		g.insets = new Insets(10, 0, 0, 0);
+		g.gridy = 0;
+		topPanel.add(subtitle, g);
 		
-		topPanel.add(subtitle, "width 100%!, gaptop 10, wrap");
-		
-		topPanel.add(versionInfo, "width 100%!, wrap");
+		g.insets = new Insets(0, 0, 0, 0);
+		g.gridy = 1;
+		topPanel.add(versionInfo, g);
 		 
+		g.insets = new Insets(10, 0, 0, 0);
+		g.gridy = 2;
 		topPanel.add(new JLabel("<html><b><small>Release notes:</small></b></html>"),
-				"width 100%!, gaptop 10, wrap");
+				g);
 		
-		JPanel bottomPanel = new JPanel(new MigLayout("fill, insets 0"));
+		JPanel bottomPanel = new JPanel(new GridBagLayout());
 	
 		automaticallyDownload.setText("Automatically download and install updates next time");
 		
 		automaticallyDownload.setSelected(false);
 				
-		bottomPanel.add(automaticallyDownload,"gap 0 0 10 10, spanx 2, wrap");
+		GridBagConstraints g2 = new GridBagConstraints();
+		g2.fill = GridBagConstraints.HORIZONTAL;
+		g2.insets = new Insets(0, 0, 10, 0);
+		g2.gridwidth = 2;
+		g2.gridx = 0;
+		g2.gridy = 0;
+		g2.gridwidth = 3;
+		g2.weightx = 100;
+		
+		bottomPanel.add(automaticallyDownload, g2);
 		
 		JButton skipVersionButton = new JButton(skipVersion);
 		skipVersionButton.addActionListener(new ActionListener() 
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				dispose();
 			}
 		});
 		
-		bottomPanel.add(skipVersionButton, "align left");
+		GridBagConstraints g3 = new GridBagConstraints();
+		g3.anchor = GridBagConstraints.WEST;
+		g3.gridx = 0;
+		g3.gridy = 1;
+		bottomPanel.add(skipVersionButton, g3);
 		
 		JButton remaindLaterButton = new JButton("Remind me later");
 		remaindLaterButton.addActionListener(new ActionListener() 
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				dispose();
 			}
 		});
 		
-		bottomPanel.add(remaindLaterButton, "align right");
+		g3.anchor = GridBagConstraints.EAST;
+		g3.gridx = 2;
+		bottomPanel.add(remaindLaterButton, g3);
 		
-		bottomPanel.add(new JButton(install), "align right, tag ok, wrap");
+		g3.anchor = GridBagConstraints.EAST;
+		g3.gridx = 3;
+		bottomPanel.add(new JButton(install), g3);
 		
-		contentPanel.add(topPanel, "width 100%-20px!, gap 10 10, dock north");
+		GridBagConstraints g4 = new GridBagConstraints();
+		g4.anchor = GridBagConstraints.WEST;
+		g4.insets = new Insets(10, 10, 5, 10);
+		g4.gridy = 0;
 		
+		contentPanel.add(topPanel, g4);
+		
+		g4.anchor = GridBagConstraints.CENTER;
+		g4.fill = GridBagConstraints.BOTH;
+		g4.insets = new Insets(5, 10, 5, 10);
+		g4.gridy = 1;
+		g4.weightx = 100;
+		g4.weighty = 100;
 		contentPanel.add(new JScrollPane(releaseNotes), 
-				"dock center, grow, width 100%-20px!, height 250px, " +
-				"gap 10 10, wrap");
+				g4);
 		
-		contentPanel.add(bottomPanel, "width 100%-20px!, gap 10 10, dock south");
+		g4.anchor = GridBagConstraints.SOUTH;
+		g4.fill = GridBagConstraints.HORIZONTAL;
+		g4.insets = new Insets(5, 10, 10, 10);
+		g4.gridy = 2;
+		g4.weightx = 0;
+		g4.weighty = 0;
+		contentPanel.add(bottomPanel, g4);
 		
-		getContentPane().setLayout(new MigLayout("fill"));
+		getContentPane().setLayout(new GridBagLayout());
 		
-		getContentPane().add(icon, "dock west, width 48px!, height 48px!, aligny top, gap 10 10 10");
-		getContentPane().add(contentPanel, "dock center");
+		GridBagConstraints g5 = new GridBagConstraints();
+		g5.anchor = GridBagConstraints.NORTHWEST;
+		g5.fill = GridBagConstraints.NONE;
+		g5.insets = new Insets(10, 10, 10, 10);
+		g5.gridx = 0;
+		getContentPane().add(icon, g5);
+
+		GridBagConstraints g6 = new GridBagConstraints();
+		g6.anchor = GridBagConstraints.CENTER;
+		g6.fill = GridBagConstraints.BOTH;
+		g6.insets = new Insets(0, 0, 0, 0);
+		g6.weightx = 100;
+		g6.weighty = 100;
+		g6.gridx = 1;
+		getContentPane().add(contentPanel, g6);
 		
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		
@@ -210,5 +268,27 @@ public class UpdateAvailableDialog extends JDialog
 	{
 		return version;
 	}
-	
+
+	public static void main(String... args){
+
+		Action mockInstallAction = new AbstractAction(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//Do nothing, this is just for testing
+			}
+		};
+		mockInstallAction.putValue(Action.NAME, "Install");
+
+		Action mockSkipVersionAction = new AbstractAction(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//Do nothing, this is just for testing
+			}
+		};
+		mockSkipVersionAction.putValue(Action.NAME, "Skip this version");
+
+		UpdateAvailableDialog dialog = new UpdateAvailableDialog(mockInstallAction, mockSkipVersionAction);
+		dialog.setVisible(true);
+	}
+
 }

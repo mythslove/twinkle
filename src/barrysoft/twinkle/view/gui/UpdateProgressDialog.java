@@ -2,8 +2,13 @@ package barrysoft.twinkle.view.gui;
 
 import java.awt.AWTEvent;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.util.Calendar;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -12,9 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import net.miginfocom.swing.MigLayout;
 import barrysoft.gui.GUIEvent;
-import barrysoft.resources.ResourcesManager;
 import barrysoft.twinkle.UpdateRequest;
 import barrysoft.twinkle.UpdateVersion;
 import barrysoft.twinkle.view.UpdaterEventType;
@@ -49,23 +52,61 @@ public class UpdateProgressDialog extends JDialog
 		
 		setMessage("Downloading update archive...");
 		
-		getContentPane().setLayout(new MigLayout("fill"));
+		getContentPane().setLayout(new GridBagLayout());
 		
-		getContentPane().add(new JLabel(new ImageIcon(ResourcesManager.getResources().
-				getIconURL("software-update-available"))),
-				"dock west, gap 10 10 10 10");
+		//Set constraints for software update available icon
+		GridBagConstraints g = new GridBagConstraints();
+		g.fill = GridBagConstraints.HORIZONTAL;
+		g.anchor = GridBagConstraints.WEST;
+		g.insets = new Insets(10, 10, 10, 10);
+		g.gridx = 0;
+		g.gridy = 0;
+		g.gridheight = 3;
+		getContentPane().add(new JLabel(new ImageIcon(
+				"/Users/Will/Documents/Eclipse Workspace/Twinkle/src/barrysoft/twinkle/resources/software-update-available.png")),
+//				ResourcesManager.getResources().
+//				getIconURL("software-update-available"))),
+				g);
 		
-		getContentPane().add(messageLabel,"dock north, gap 10 10 10 10");
+		//Set constraints for message label
+		g = new GridBagConstraints();
+		g.fill = GridBagConstraints.HORIZONTAL;
+		g.gridx = 1;
+		g.weightx = 100;
+		g.anchor = GridBagConstraints.NORTH;
+		g.insets = new Insets(10, 10, 10, 10);
+		g.gridy = 0;
+		getContentPane().add(messageLabel, g);
 		
-		JPanel bottomPanel = new JPanel(new MigLayout("fill, insets 0"));
-		
+		//Set up bottom panel components
+		JPanel bottomPanel = new JPanel(new GridBagLayout());
 		cancelButton = new JButton(cancelUpdateAction);
 		
-		bottomPanel.add(statusLabel);
-		bottomPanel.add(cancelButton, "tag cancel, align right, wrap");
+		//Set up constraints for bottom panel
+		GridBagConstraints g2 = new GridBagConstraints();
 		
-		getContentPane().add(progressBar, "dock center, gap 10 10 10 10");
-		getContentPane().add(bottomPanel, "dock south, gap 10 10");
+		//Add status label to bottom panel
+		g2.fill = GridBagConstraints.HORIZONTAL;
+		g2.weightx = 100;
+		g2.gridy = 0;
+		bottomPanel.add(statusLabel);
+		
+		//Add cancel button to bottom panel
+		g2.fill = GridBagConstraints.NONE;
+		g2.gridy = 1;
+		g2.anchor = GridBagConstraints.EAST;
+		bottomPanel.add(cancelButton, g2);
+		
+		//Add progress bar
+		g.anchor = GridBagConstraints.CENTER;
+		g.gridy = 1;
+		getContentPane().add(progressBar, g);
+		
+		//Add bottom panel
+		g.anchor = GridBagConstraints.SOUTH;
+		g.insets = new Insets(0, 10, 0, 10);
+		g.gridy = 2;
+		getContentPane().add(bottomPanel, g);
 		
 		pack();
 	}
@@ -197,5 +238,16 @@ public class UpdateProgressDialog extends JDialog
 	protected void setMessage(String message)
 	{
 		messageLabel.setText(String.format("<html><b>%s</b></html>", message));
+	}
+	
+	public static void main(String... args){
+		Action mockCancelAction = new AbstractAction(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//Do nothing, this is just for testing
+			}};
+			mockCancelAction.putValue(Action.NAME, "Cancel");
+			
+		new UpdateProgressDialog(mockCancelAction).setVisible(true);
 	}
 }
