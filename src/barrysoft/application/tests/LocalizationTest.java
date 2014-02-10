@@ -1,12 +1,16 @@
 package barrysoft.application.tests;
 
+import static org.junit.Assert.fail;
+
 import java.util.Hashtable;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import barrysoft.localization.Localization;
 
-public class LocalizationTest extends TestCase {
+public class LocalizationTest {
 
+	@Test
 	public void testLocalization() {
 		
 		Localization localization = new Localization();

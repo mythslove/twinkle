@@ -1,5 +1,8 @@
 package barrysoft.twinkle.tests.updater;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -7,12 +10,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import barrysoft.twinkle.UpdateException;
 import barrysoft.twinkle.UpdateVersion;
 import barrysoft.twinkle.fetcher.UpdateFetcher;
 
-public abstract class UpdateFetcherTest extends TestCase {
+public abstract class UpdateFetcherTest {
 
 	private UpdateFetcher 	fetcher;
 	private DateFormat		dateFormat;
@@ -23,6 +27,7 @@ public abstract class UpdateFetcherTest extends TestCase {
 		this.dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
 	}
 	
+	@Test
 	public void testFetcher()
 	{
 		try 

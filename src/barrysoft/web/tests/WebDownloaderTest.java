@@ -1,5 +1,9 @@
 package barrysoft.web.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -9,16 +13,16 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import barrysoft.web.WebDownloader;
 
-public class WebDownloaderTest extends TestCase {
+public class WebDownloaderTest {
 
+	@Test
 	public void testDownload() {
 		
 		WebDownloader downloader = new WebDownloader();
@@ -34,6 +38,7 @@ public class WebDownloaderTest extends TestCase {
 		
 	}
 	
+	@Test
 	public void testDownloadToFile() {
 		
 		WebDownloader downloader = new WebDownloader();
@@ -55,6 +60,7 @@ public class WebDownloaderTest extends TestCase {
 		
 	}
 	
+	@Test
 	public void testSaving() {
 		WebDownloader downloader = new WebDownloader();
 		
@@ -101,6 +107,7 @@ public class WebDownloaderTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testRedirect() {
 		
 		WebDownloader downloader = new WebDownloader();
@@ -121,6 +128,7 @@ public class WebDownloaderTest extends TestCase {
 	
 	public final String querySite = "http://www.timeanddate.com/worldclock/city.html?bla=1&bla2=3";
 	
+	@Test
 	public void testQuery() {
 		
 		WebDownloader downloader = new WebDownloader();
@@ -142,6 +150,7 @@ public class WebDownloaderTest extends TestCase {
 	
 	public final String postSite = "http://www.snee.com/xml/crud/posttest.cgi";
 	
+	@Test
 	public void testPost() {
 		
 		WebDownloader downloader = new WebDownloader();

@@ -2,11 +2,13 @@ package barrysoft.localization.test;
 
 import java.util.Hashtable;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import barrysoft.localization.Localization;
 
-public class LocalizationTest extends TestCase {
+public class LocalizationTest {
 	
+	@Test
 	public void testLocalization() {
 		
 		Hashtable<String, String> words = new Hashtable<String, String>();

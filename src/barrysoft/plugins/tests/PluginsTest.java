@@ -1,11 +1,15 @@
 package barrysoft.plugins.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.Vector;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import barrysoft.logs.Logger;
 import barrysoft.logs.LoggerTextual;
 import barrysoft.options.OptionNotFoundException;
@@ -14,11 +18,12 @@ import barrysoft.plugins.PluginLoadingException;
 import barrysoft.plugins.PluginsManager;
 import barrysoft.utils.FileUtils;
 
-public class PluginsTest extends TestCase {
+public class PluginsTest {
 	
 	public static final String pluginsDir = "plugins";
 	public static final String pluginSpec = "plugin1.spi";
 	
+	@Test
 	public void testLoadPlugin() {
 		
 		Logger.setLogger(new LoggerTextual());
@@ -99,6 +104,7 @@ public class PluginsTest extends TestCase {
 		
 	}
 	
+	@Test
 	public void testLoadPlugins() {
 		
 		Logger.setLogger(new LoggerTextual());

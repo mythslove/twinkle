@@ -1,5 +1,8 @@
 package barrysoft.application.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -8,8 +11,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -19,7 +21,7 @@ import barrysoft.logs.LoggerTextual;
 import barrysoft.options.OptionNotFoundException;
 import barrysoft.options.Options;
 
-public class OptionsTest extends TestCase {
+public class OptionsTest {
 	
 	Object[] values = new Object[] {
 		"value1",
@@ -28,6 +30,7 @@ public class OptionsTest extends TestCase {
 		new File("file.txt"),	
 	};
 	
+	@Test
 	public void testOptions() {
 		
 		Logger.setLogger(new LoggerTextual());

@@ -2,10 +2,11 @@ package barrysoft.twinkle.tests.updater;
 
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import barrysoft.twinkle.restarter.RestarterOSX;
 
-public class RestarterOSXTest extends TestCase {
+public class RestarterOSXTest {
 	
 	private final static String[] paths = {
 		"/Applications/JSubsGetter.app/Contents/Resources/JSubsGetter.jar",
@@ -13,6 +14,7 @@ public class RestarterOSXTest extends TestCase {
 		"JSubsGetter.app/Contents/Resources/JSubsGetter.jar"
 	};
 	
+	@Test
 	public void testAppBundleParse()
 	{
 		for (String path : paths)

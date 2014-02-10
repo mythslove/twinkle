@@ -1,5 +1,10 @@
 package barrysoft.web.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;
@@ -10,8 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -21,7 +25,7 @@ import barrysoft.web.ParserRule;
 import barrysoft.web.ParserRuleParam;
 import barrysoft.web.WebDownloader;
 
-public class ParserTest extends TestCase {
+public class ParserTest {
 	
 	public final static String UA = "Mozilla/5.0 (Windows; Windows NT 5.1; en-US; rv:1.9.2a1pre) "+
 										"Gecko/20090402 Firefox/3.6a1pre";
@@ -58,7 +62,7 @@ public class ParserTest extends TestCase {
 											"[city] is also known as (.+?)\\s"+
 											"[city] is the capital of [country]\\s"+
 											"The native name of [country] is (.+?)$";
-	
+	@Test
 	public void testParse() {
 		
 		Parser p = new Parser("Test Parser");
@@ -87,6 +91,7 @@ public class ParserTest extends TestCase {
 	public final static String timeURL = "http://www.worldtimeserver.com/current_time_in_IT.aspx";
 	public final static String timeRule = "(?i)(?s).*The current time.*?(\\d+[.:]+\\d\\d *[AP]*M*).*";
 	
+	@Test
 	public void testParseURL() {
 		
 		Parser p = new Parser("Time Parser");
@@ -117,6 +122,7 @@ public class ParserTest extends TestCase {
 		"Dexter", "How I Met Your Mother", "Lost", "Glee"
 	};
 	
+	@Test
 	public void testParserITSA() {
 		
 		Parser p = new Parser("ITSA Parser");
@@ -162,6 +168,7 @@ public class ParserTest extends TestCase {
 		"(?i)(?s).*<div id='remositoryfileinfo'>.*?<dd>.*?Dimensioni del file: (.+?)\r\n.*?</dd>.*"
 	};
 	
+	@Test
 	public void testParserMultipleRules() {
 		
 		Parser p = new Parser("ITSA Parser Multi");
@@ -199,6 +206,7 @@ public class ParserTest extends TestCase {
 		"(?i)(?s).*<div id='remositoryfileinfo'>.*?<dd>.*?[tag](.+?)\r\n.*?</dd>.*"
 	};
 	
+	@Test
 	public void testParserMultipleParamsRules() {
 		
 		Parser p = new Parser("ITSA Parser Multi");
@@ -240,6 +248,7 @@ public class ParserTest extends TestCase {
 		
 	}
 	
+	@Test
 	public void testSave() {
 		
 		Parser p = new Parser("Save Parser");

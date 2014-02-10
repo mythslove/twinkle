@@ -1,18 +1,23 @@
 package barrysoft.web.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.NoSuchElementException;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import barrysoft.web.ExtractionJob;
 import barrysoft.web.ExtractionStep;
 import barrysoft.web.Extractor;
 import barrysoft.web.ParserRule;
 import barrysoft.web.ParserRuleParam;
 
-public class ExtractionTest extends TestCase {
+public class ExtractionTest {
 	
+	@Test
 	public void testExtract() {
 		
 		Extractor search = new Extractor();

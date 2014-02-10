@@ -1,10 +1,13 @@
 package barrysoft.twinkle.tests.updater;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 import barrysoft.twinkle.comparator.VersionComparator;
 import barrysoft.twinkle.comparator.VersionComparator.ComparatorResult;
 
-public abstract class VersionComparatorTest extends TestCase {
+public abstract class VersionComparatorTest {
 	
 	private VersionComparator comparator;
 	
@@ -13,6 +16,7 @@ public abstract class VersionComparatorTest extends TestCase {
 		this.comparator = comparator;
 	}
 	
+	@Test
 	public void testNumbers()
 	{
 		assertNewer("1.0", "1.1");
@@ -22,6 +26,7 @@ public abstract class VersionComparatorTest extends TestCase {
 		assertNewer("0.1", "0.1.2");
 	}
 	
+	@Test
 	public void testPrereleases()
 	{
 		assertNewer("1.0a1", "1.0b1");
