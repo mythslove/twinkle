@@ -33,11 +33,13 @@ public class MD5UpdateValidator implements UpdateValidator
 	{
 	}
 	
+	@Override
 	public String getName()
 	{
 		return "MD5 Checksum";
 	}
 	
+	@Override
 	public boolean validate(File updateArchive, UpdateVersion version, UpdateRequest source)
 	{		
 		try {

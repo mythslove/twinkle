@@ -165,6 +165,7 @@ public class Updater
 	{
 		return new Callable<File>() {
 
+			@Override
 			public File call() throws Exception
 			{				
 				return downloadUpdate(version, source);
@@ -361,26 +362,31 @@ public class Updater
 			observer.downloadProgress(version, bytesLoaded);
 	}
 
+	@Override
 	public void addObserver(UpdaterObserver observer)
 	{
 		observers.add(observer);
 	}
 
+	@Override
 	public void removeObserver(UpdaterObserver observer)
 	{
 		observers.add(observer);
 	}
 	
+	@Override
 	public void progressFinish(ProgressEvent<WebDownloader> event)
 	{
 		fireDownloadCompleted(getCurrentVersion());
 	}
 
+	@Override
 	public void progressStart(ProgressEvent<WebDownloader> event)
 	{
 		fireDownloadStarted(getCurrentVersion());
 	}
 
+	@Override
 	public void progressUpdate(ProgressEvent<WebDownloader> event)
 	{
 		fireDownloadProgress(getCurrentVersion(), event.getCurrent());

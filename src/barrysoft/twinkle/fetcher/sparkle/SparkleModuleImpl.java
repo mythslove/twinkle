@@ -19,11 +19,13 @@ public class SparkleModuleImpl extends ModuleImpl
 		super(SparkleModuleImpl.class, SparkleModule.URI);
 	}
 	
+	@Override
 	public String getUri()
 	{
 		return SparkleModule.URI;
 	}
 
+	@Override
 	public void copyFrom(Object o)
 	{
 		if (!(o instanceof SparkleModule))
@@ -42,37 +44,44 @@ public class SparkleModuleImpl extends ModuleImpl
 			enclosures.addAll(spk.getEnclosures());
 	}
 
+	@Override
 	public Class<?> getInterface()
 	{
 		return CopyFromInterface.class;
 	}
 
+	@Override
 	public String getReleaseNotesLink()
 	{
 		return releaseNotesLink;
 	}
 	
+	@Override
 	public void setReleaseNotesLink(String link)
 	{
 		releaseNotesLink = link;
 	}
 
+	@Override
 	public String getMinimumSystemVersion()
 	{
 		return minimumSystemVersion;
 	}
 
+	@Override
 	public void setMinimumSystemVersion(String msv)
 	{
 		minimumSystemVersion = msv;
 	}
 	
 
+	@Override
 	public List<SparkleEnclosure> getEnclosures()
 	{
 		return enclosures;
 	}
 
+	@Override
 	public void setEnclosures(List<SparkleEnclosure> enclosures)
 	{
 		this.enclosures = enclosures;

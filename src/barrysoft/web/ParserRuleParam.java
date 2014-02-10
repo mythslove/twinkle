@@ -137,6 +137,7 @@ public class ParserRuleParam implements Comparable<ParserRuleParam> {
 		return values.toArray(new String[values.size()]);
 	}
 
+	@Override
 	public int compareTo(ParserRuleParam o) {
 		return getName().compareTo(o.getName());
 	}

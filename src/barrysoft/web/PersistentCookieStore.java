@@ -24,36 +24,43 @@ implements CookieStore, Runnable
      Runtime.getRuntime().addShutdownHook(new Thread(this)); 
  }
 
- public void run() {
+ @Override
+public void run() {
      // todo: write cookies in store to persistent storage
  }
 
- public void	add(URI uri, HttpCookie cookie) {
+ @Override
+public void	add(URI uri, HttpCookie cookie) {
 	 if (cookie == null) return;
  	 Logger.debug("New cookie ("+cookie.getDomain()+"): "+cookie.getName(),Logger.HIGHEST_VERBOSITY);
  	 Logger.debug("Cookies in storage: "+store.getCookies().toString(), Logger.HIGHEST_VERBOSITY);
      store.add(uri, cookie);
  }
 
- public List<HttpCookie> get(URI uri) {
+ @Override
+public List<HttpCookie> get(URI uri) {
 	 Logger.debug("Getting cookie for: "+uri.toASCIIString()+" = "+store.get(uri).toString(), Logger.HIGHEST_VERBOSITY);
 	 Logger.debug("Cookies in storage: "+store.getCookies().toString(), Logger.HIGHEST_VERBOSITY);
 	 return store.get(uri);
  }
 
- public List<HttpCookie> getCookies() {
+ @Override
+public List<HttpCookie> getCookies() {
      return store.getCookies();
  }
  
- public List<URI> getURIs() {
+ @Override
+public List<URI> getURIs() {
      return store.getURIs();
  }
 
- public boolean remove(URI uri, HttpCookie cookie) {
+ @Override
+public boolean remove(URI uri, HttpCookie cookie) {
      return store.remove(uri, cookie);
  }
 
- public boolean removeAll()  {
+ @Override
+public boolean removeAll()  {
      return store.removeAll();
  }
 }

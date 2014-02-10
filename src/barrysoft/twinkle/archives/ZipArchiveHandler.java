@@ -39,6 +39,7 @@ public class ZipArchiveHandler implements ArchiveHandler
 		
 	}
 
+	@Override
 	public boolean canHandle(File archiveFile)
 	{
 		try {
@@ -50,6 +51,7 @@ public class ZipArchiveHandler implements ArchiveHandler
 		return true;
 	}
 
+	@Override
 	public File[] handle(File f) throws IOException
 	{
 		ZipFile zipFile = new ZipFile(f);

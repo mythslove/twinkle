@@ -19,6 +19,7 @@ public class RestarterOSX implements Restarter {
 	{
 	}
 	
+	@Override
 	public void restart(Class<?> mainClass)
 	{
 		String [] args = new String[] {

@@ -43,6 +43,7 @@ public class UpdaterViewSwing implements UpdaterView
 			putValue(Action.NAME, "Install");
 		}
 		
+		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			updateOptions.setOption("updater.auto", 
@@ -61,6 +62,7 @@ public class UpdaterViewSwing implements UpdaterView
 			putValue(Action.NAME, "Skip this version");
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			updateOptions.setOption("updater.skipversion",
@@ -76,6 +78,7 @@ public class UpdaterViewSwing implements UpdaterView
 			putValue(Action.NAME, "Cancel");
 		}
 		
+		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			fireCancelUpdate();
@@ -94,21 +97,25 @@ public class UpdaterViewSwing implements UpdaterView
 		dispatcher.addTarget(updateProgressDialog);
 	}
 
+	@Override
 	public void downloadCompleted(UpdateVersion version)
 	{
 		dispatcher.dispatch(UpdaterEventType.DOWNLOAD_ENDED);
 	}
 
+	@Override
 	public void downloadProgress(UpdateVersion version, int bytesLoaded)
 	{
 		dispatcher.dispatch(UpdaterEventType.DOWNLOAD_PROGRESS, bytesLoaded);
 	}
 
+	@Override
 	public void downloadStarted(UpdateVersion version)
 	{		
 		dispatcher.dispatch(UpdaterEventType.DOWNLOAD_STARTED);
 	}
 
+	@Override
 	public void newVersionFound(UpdateVersion version, UpdateRequest source)
 	{
 		String skipVersion = updateOptions.getOptionValue("updater.skipversion", String.class, "");
@@ -121,21 +128,25 @@ public class UpdaterViewSwing implements UpdaterView
 			fireUpdateRequested(version, source);
 	}
 
+	@Override
 	public void noUpdateRequired()
 	{
 		dispatcher.dispatch(UpdaterEventType.UPDATE_COMPLETED);
 	}
 
+	@Override
 	public void updateCanceled()
 	{
 		dispatcher.dispatch(UpdaterEventType.DOWNLOAD_ENDED);
 	}
 	
+	@Override
 	public void addObserver(UpdaterViewObserver observer)
 	{
 		observers.add(observer);
 	}
 
+	@Override
 	public void removeObserver(UpdaterViewObserver observer)
 	{
 		observers.add(observer);
@@ -159,26 +170,31 @@ public class UpdaterViewSwing implements UpdaterView
 			observer.restartRequested(source);
 	}
 	
+	@Override
 	public void extractionEnded(File archiveFile)
 	{
 		dispatcher.dispatch(UpdaterEventType.EXTRACTION_ENDED);
 	}
 
+	@Override
 	public void extractionStarted(File archiveFile)
 	{
 		dispatcher.dispatch(UpdaterEventType.EXTRACTION_STARTED);
 	}
 
+	@Override
 	public void validationEnded(UpdateVersion version, File archiveFile)
 	{
 		dispatcher.dispatch(UpdaterEventType.VALIDATION_ENDED);
 	}
 
+	@Override
 	public void validationStarted(UpdateVersion version, File archiveFile)
 	{
 		dispatcher.dispatch(UpdaterEventType.VALIDATION_STARTED);
 	}
 
+	@Override
 	public void updateError(UpdateException e)
 	{
 		dispatcher.dispatch(UpdaterEventType.ERROR_OCCURRED, e);
@@ -187,21 +203,25 @@ public class UpdaterViewSwing implements UpdaterView
 				"Error while updating", JOptionPane.ERROR_MESSAGE);
 	}
 	
+	@Override
 	public void updateCompleted()
 	{
 		dispatcher.dispatch(UpdaterEventType.UPDATE_COMPLETED);
 	}
 
+	@Override
 	public void checkingStarted(UpdateRequest source)
 	{
 		dispatcher.dispatch(UpdaterEventType.CHECKING_COMPLETED, source);
 	}
 
+	@Override
 	public void checkingEnded(UpdateRequest source)
 	{
 		dispatcher.dispatch(UpdaterEventType.CHECKING_UPDATES, source);
 	}
 
+	@Override
 	public void restartRequired(UpdateRequest source)
 	{
 		if (askForRestart())

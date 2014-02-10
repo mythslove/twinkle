@@ -67,6 +67,7 @@ public class Plugin implements PluginsInterface,
 		
 	}
 	
+	@Override
 	public boolean isEnabled() {
 		try {
 			return getOptions().getOptionValue("enabled", Boolean.class);
@@ -76,14 +77,17 @@ public class Plugin implements PluginsInterface,
 		}
 	}
 
+	@Override
 	public boolean hasConfiguration() {
 		return false;
 	}
 	
+	@Override
 	public void configure(JFrame owner) {
 		return;
 	}
 	
+	@Override
 	public void setEnabled(boolean enabled) {
 		getOptions().setOption("enabled", enabled);
 	}
@@ -243,6 +247,7 @@ public class Plugin implements PluginsInterface,
 		this.file = pluginFile;
 	}
 
+	@Override
 	public PluginInfo getInfo() {
 		return info;
 	}
@@ -251,14 +256,17 @@ public class Plugin implements PluginsInterface,
 		this.info = info;
 	}
 
+	@Override
 	public Options getOptions() {
 		return options;
 	}
 	
+	@Override
 	public Localization getLocalization() {
 		return localization;
 	}
 
+	@Override
 	public Configuration getConfiguration() {
 		return configuration;
 	}

@@ -77,6 +77,7 @@ public class StandardVersionComparator implements VersionComparator
 	{
 	}
 	
+	@Override
 	public ComparatorResult compareVersions(String version, String toVersion)
 	{
 		List<String> partsA = splitVersionString(version);

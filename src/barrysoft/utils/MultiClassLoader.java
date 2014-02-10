@@ -35,10 +35,12 @@ public abstract class MultiClassLoader extends ClassLoader {
 	 * to them.
 	 */
 	
+	@Override
 	public Class<?> loadClass(String className) throws ClassNotFoundException {
 	    return (loadClass(className, true));
 	}
 	
+	@Override
 	public synchronized Class<?> loadClass(String className, boolean resolveIt) 
 			throws ClassNotFoundException 
 	{

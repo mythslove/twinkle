@@ -93,7 +93,8 @@ public class PluginsManager <PluginType extends Plugin> {
 		
 		// Create a filter for the plugin config file
 	    FilenameFilter pluginsFilter = new FilenameFilter() {
-	        public boolean accept(File dir, String name) {
+	        @Override
+			public boolean accept(File dir, String name) {
 	            return name.endsWith(getPluginsExtension());
 	        }
 	    };

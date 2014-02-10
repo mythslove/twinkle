@@ -105,10 +105,12 @@ public class Localization implements XMLizable {
 					Locale.getDefault().getCountry());
 	}
 	
+	@Override
 	public String getXML(int indentation) {
 		return getXML(indentation, null);
 	}
 	
+	@Override
 	public String getXML(int indentation, String id) {
 		
 		String xml = new String();
@@ -143,6 +145,7 @@ public class Localization implements XMLizable {
 		
 	}
 
+	@Override
 	public void loadFromXML(Node node) {
 		
 		if (!node.getNodeName().equals(XML_ROOT))

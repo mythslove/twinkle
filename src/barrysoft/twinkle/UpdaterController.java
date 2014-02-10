@@ -61,6 +61,7 @@ public class UpdaterController implements UpdaterObserver, UpdaterViewObserver
 		}
 	}
 
+	@Override
 	public void newVersionFound(UpdateVersion version, UpdateRequest source)
 	{		
 		String displayVersion = version.getShortVersion();
@@ -77,32 +78,38 @@ public class UpdaterController implements UpdaterObserver, UpdaterViewObserver
 		getView().newVersionFound(version, source);
 	}
 	
+	@Override
 	public void noUpdateRequired()
 	{
 		Logger.getLogger(getClass()).debug("Application is up to date");
 		getView().noUpdateRequired();
 	}
 
+	@Override
 	public void downloadCompleted(UpdateVersion version)
 	{
 		Logger.getLogger(getClass()).debug("Update files download completed.");
 		getView().downloadCompleted(version);
 	}
 
+	@Override
 	public void downloadProgress(UpdateVersion version, int bytesLoaded)
 	{
 		getView().downloadProgress(version, bytesLoaded);
 	}
 
+	@Override
 	public void downloadStarted(UpdateVersion version)
 	{
 		Logger.getLogger(getClass()).debug("Downloading update files...");
 		getView().downloadStarted(version);
 	}
 
+	@Override
 	public void updateRequested(final UpdateVersion version, final UpdateRequest source)
 	{
 		new Thread(new Runnable() {
+			@Override
 			public void run()
 			{
 				try 
@@ -121,6 +128,7 @@ public class UpdaterController implements UpdaterObserver, UpdaterViewObserver
 		}).start();
 	}
 	
+	@Override
 	public void updateCanceled()
 	{
 		view.updateCanceled();
@@ -131,51 +139,61 @@ public class UpdaterController implements UpdaterObserver, UpdaterViewObserver
 		return view;
 	}
 
+	@Override
 	public void userCanceledUpdate()
 	{
 		updater.cancelUpdate();
 	}
 
+	@Override
 	public void extractionEnded(File archiveFile)
 	{
 		view.extractionEnded(archiveFile);
 	}
 
+	@Override
 	public void extractionStarted(File archiveFile)
 	{
 		view.extractionStarted(archiveFile);
 	}
 
+	@Override
 	public void validationEnded(UpdateVersion version, File archiveFile)
 	{
 		view.validationEnded(version, archiveFile);
 	}
 
+	@Override
 	public void validationStarted(UpdateVersion version, File archiveFile)
 	{
 		view.validationStarted(version, archiveFile);
 	}
 
+	@Override
 	public void updateCompleted()
 	{
 		view.updateCompleted();
 	}
 
+	@Override
 	public void checkingEnded(UpdateRequest source)
 	{
 		view.checkingStarted(source);
 	}
 
+	@Override
 	public void checkingStarted(UpdateRequest source)
 	{
 		view.checkingEnded(source);
 	}
 
+	@Override
 	public void restartRequired(UpdateRequest source)
 	{
 		view.restartRequired(source);
 	}
 
+	@Override
 	public void restartRequested(UpdateRequest source)
 	{
 		updater.restart(source);

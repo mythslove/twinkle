@@ -196,10 +196,12 @@ public class Options implements XMLizable {
 		this.configFile = configFile;
 	}
 
+	@Override
 	public String getXML(int indentation) {
 		return getXML(indentation, null);
 	}
 	
+	@Override
 	public String getXML(int indentation, String id) {
 		
 		String xml = XMLUtils.openTag(XML_ROOT, id, indentation);
@@ -225,6 +227,7 @@ public class Options implements XMLizable {
 		return xml;
 	}
 
+	@Override
 	public void loadFromXML(Node node) {
 		
 		NodeList nodeLst = node.getChildNodes();

@@ -41,10 +41,12 @@ public class Option<T> implements XMLizable {
 		this.value = value;
 	}
 
+	@Override
 	public String getXML(int indentation) {
 		return getXML(indentation, null);
 	}
 	
+	@Override
 	public String getXML(int indentation, String id) {
 		
 		Vector<String> attributes = new Vector<String>();
@@ -62,6 +64,7 @@ public class Option<T> implements XMLizable {
 		
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public void loadFromXML(Node node)
 	{

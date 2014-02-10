@@ -37,11 +37,13 @@ public class DSAUpdateValidator implements UpdateValidator
 	{
 	}
 	
+	@Override
 	public String getName()
 	{
 		return "DSA Signature";
 	}
 
+	@Override
 	public boolean validate(File updateArchive, UpdateVersion version, UpdateRequest source)
 	{
 		try {

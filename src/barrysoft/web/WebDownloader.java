@@ -806,11 +806,13 @@ public class WebDownloader implements XMLizable
 		this.url = new URL(url);
 	}
 
+	@Override
 	public String getXML(int indentation)
 	{
 		return getXML(indentation, null);
 	}
 
+	@Override
 	public String getXML(int indentation, String id)
 	{
 		String xml = new String();
@@ -854,6 +856,7 @@ public class WebDownloader implements XMLizable
 		return xml;
 	}
 
+	@Override
 	public void loadFromXML(Node node)
 	{
 		if (!node.getNodeName().equals(XML_ROOT))

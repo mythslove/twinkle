@@ -21,6 +21,7 @@ public abstract class PluginsRunner <PluginType extends Plugin> implements Runna
 		this.total = total;
 	}
 	
+	@Override
 	public abstract void run();
 	
 	public Thread getThread() {

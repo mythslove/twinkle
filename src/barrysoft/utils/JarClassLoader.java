@@ -39,7 +39,8 @@ public class JarClassLoader extends MultiClassLoader {
 		jarResources = new JarResources(jarName);
 	}
 
-    protected byte[] loadClassBytes(String className) {
+    @Override
+	protected byte[] loadClassBytes(String className) {
 
 		className = formatClassName(className);
 	

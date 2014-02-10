@@ -7,6 +7,7 @@ public class TestPlugin extends Plugin implements Testable {
 	public final static String EXTERNAL = "e";
 	public final static String INTERNAL = "i";
 	
+	@Override
 	public String test() {
 		return INTERNAL;
 	}

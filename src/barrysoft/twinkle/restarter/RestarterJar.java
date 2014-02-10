@@ -40,6 +40,7 @@ public class RestarterJar implements Restarter
 	 * 					that can be executed by the JVM
 	 */
 	
+	@Override
 	public void restart(Class<?> mainClass)
 	{
 		List<String> args = buildJVMArgs(mainClass);

@@ -13,11 +13,13 @@ public class SparkleModuleParser implements ModuleParser
 {
 	private static final Namespace NS = Namespace.getNamespace(SparkleModule.URI);
 	
+	@Override
 	public String getNamespaceUri()
 	{
 		return SparkleModule.URI;
 	}
 
+	@Override
 	public Module parse(Element e)
 	{
 		SparkleModuleImpl spk = new SparkleModuleImpl();

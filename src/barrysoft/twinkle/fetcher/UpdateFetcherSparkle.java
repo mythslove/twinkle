@@ -45,6 +45,7 @@ public class UpdateFetcherSparkle implements UpdateFetcher
 		
 	}
 	
+	@Override
 	public List<UpdateVersion> fetchVersions(URL from) throws UpdateException
 	{
 		Vector<UpdateVersion> operations = 

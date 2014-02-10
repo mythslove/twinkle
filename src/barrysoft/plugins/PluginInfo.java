@@ -98,10 +98,12 @@ public class PluginInfo implements XMLizable {
 		
 	}
 	
+	@Override
 	public String getXML(int indentation) {
 		return getXML(indentation, null);
 	}
 	
+	@Override
 	public String getXML(int indentation, String id) {
 		
 		String xml = new String();
@@ -117,6 +119,7 @@ public class PluginInfo implements XMLizable {
 		
 	}
 
+	@Override
 	public void loadFromXML(Node node) {
 		
 		if (node == null)
