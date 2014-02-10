@@ -51,7 +51,7 @@ public class FileUtils {
 		return getJarPath(file, FileUtils.class);
 	}
 	
-	public static String getJarPath(String file, Class mainClass) {
+	public static String getJarPath(String file, Class<?> mainClass) {
 		
 		try {
 			

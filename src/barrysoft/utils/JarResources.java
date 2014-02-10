@@ -81,11 +81,11 @@ public final class JarResources {
 			
 			// extracts just sizes only. 
 		    ZipFile zf=new ZipFile(jarFileName);
-		    Enumeration e=zf.entries();
+		    Enumeration<? extends ZipEntry> e=zf.entries();
 		    
 		    while (e.hasMoreElements()) {
 		    	
-				ZipEntry ze=(ZipEntry)e.nextElement();
+				ZipEntry ze=e.nextElement();
 		
 				Logger.debug(dumpZipEntry(ze), Logger.HIGH_VERBOSITY);
 		
