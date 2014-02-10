@@ -1,0 +1,223 @@
+package barrysoft.plugins;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import barrysoft.localization.Localization;
+import barrysoft.xml.XMLizable;
+import barrysoft.xml.XMLUtils;
+
+public class PluginInfo implements XMLizable {
+
+	public final static String XML_ROOT = "info";
+	public final static String XML_NAME = "name";
+	public final static String XML_CLASS = "class";
+	public final static String XML_JAR = "jar";
+	public final static String XML_TYPE = "type";
+	public final static String XML_HOST = "host";
+	public final static String XML_VERSION = "version";
+	public final static String XML_AUTHOR = "author";
+	public final static String XML_DESC = "description";
+	
+	public final static String DEF_NAME = "No Name";
+	public final static String DEF_TYPE = "Plugin";
+	public final static String DEF_VERSION = "1.0";
+	public final static String DEF_AUTHOR = "Unknown";
+	public final static String DEF_INFO = "Generic plugin";
+	
+	private String 	name = DEF_NAME;
+	private String	jarClass;
+	private String	jarName;
+	private String	type = DEF_TYPE;
+	private String	hostApplication;
+	private String	version = DEF_VERSION;
+	private String	author = DEF_AUTHOR;
+	private String	description = DEF_INFO;
+	
+	public static PluginInfo loadFromFile(File f) 
+			throws FileNotFoundException, 
+					ParserConfigurationException, 
+					SAXException, 
+					IOException
+	
+	{
+		
+		if (f == null)
+			throw new IllegalArgumentException("File was null");
+		
+		if (!f.exists())
+			throw new FileNotFoundException(f.getAbsolutePath());
+		
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		
+		Document doc = db.parse(f);
+		doc.getDocumentElement().normalize();
+		
+		NodeList list = doc.getElementsByTagName(XML_ROOT);
+		
+		if (list.getLength() == 0)
+			throw new IOException("Can't find root node: "+XML_ROOT);
+		
+		// Only one object is created.
+		// If multiple info sections are found
+		// than the last one is taken.
+		
+		Node infoNode = list.item(list.getLength()-1);
+		
+		PluginInfo pi = new PluginInfo();
+		pi.loadFromXML(infoNode);
+		
+		return pi;
+		
+	}
+	
+	public String getXML(int indentation) {
+		
+		String xml = new String();
+		
+		xml += XMLUtils.openTag(XML_ROOT, indentation);
+		
+		xml += XMLUtils.element(XML_NAME, getName(), indentation+1);
+		xml += XMLUtils.element(XML_CLASS, getJarClass(), indentation+1);
+		xml += XMLUtils.element(XML_JAR, getJarName(), indentation+1);
+		xml += XMLUtils.element(XML_TYPE, getType(), indentation+1);
+		xml += XMLUtils.element(XML_HOST, getHostApplication(), indentation+1);
+		xml += XMLUtils.element(XML_VERSION, getVersion(), indentation+1);
+		xml += XMLUtils.element(XML_AUTHOR, getAuthor(), indentation+1);
+		xml += XMLUtils.element(XML_DESC, getDescription(), indentation+1);
+		
+		xml += XMLUtils.closeTag(XML_ROOT, indentation);
+		
+		return xml;
+		
+	}
+
+	public void loadFromXML(Node node) {
+		
+		if (node == null)
+			throw new IllegalArgumentException("Null input XML node");
+		
+		NodeList list = node.getChildNodes();
+		
+		for (int i=0; i < list.getLength(); i++) {
+			
+			Node n = list.item(i);
+			
+			if (n.getNodeType() == Node.ELEMENT_NODE) {
+				
+				if (n.getFirstChild() == null || 
+						n.getFirstChild().getNodeType() != Node.TEXT_NODE)
+				{
+					continue;
+				}
+				
+				String value = n.getFirstChild().getNodeValue();
+				
+				if (value == null)
+					continue;
+				
+				if (n.getNodeName().equals(XML_NAME))
+					setName(value);
+				else if (n.getNodeName().equals(XML_CLASS))
+					setJarClass(value);
+				else if (n.getNodeName().equals(XML_JAR))
+					setJarName(value);
+				else if (n.getNodeName().equals(XML_TYPE))
+					setType(value);
+				else if (n.getNodeName().equals(XML_HOST))
+					setHostApplication(value);
+				else if (n.getNodeName().equals(XML_VERSION))
+					setVersion(value);
+				else if (n.getNodeName().equals(XML_AUTHOR))
+					setAuthor(value);
+				else if (n.getNodeName().equals(XML_DESC))
+					setDescription(value);
+				else
+					throw new RuntimeException("Unrecognized XML element: "+n.getNodeName());
+				
+			}
+			
+		}
+		
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	protected void setAuthor(String author) {
+		this.author = author;
+	}
+
+	public String getHostApplication() {
+		return hostApplication;
+	}
+
+	protected void setHostApplication(String hostApplication) {
+		this.hostApplication = hostApplication;
+	}
+
+	public String getJarClass() {
+		return jarClass;
+	}
+
+	protected void setJarClass(String jarClass) {
+		this.jarClass = jarClass;
+	}
+
+	public String getJarName() {
+		return jarName;
+	}
+
+	protected void setJarName(String jarName) {
+		this.jarName = jarName;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	protected void setName(String name) {
+		this.name = name;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	protected void setType(String type) {
+		this.type = type;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	protected void setVersion(String version) {
+		this.version = version;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public String getDescription(Localization loc) {
+		return loc.getLocalized(description);
+	}
+
+	protected void setDescription(String description) {
+		this.description = description;
+	}
+
+}

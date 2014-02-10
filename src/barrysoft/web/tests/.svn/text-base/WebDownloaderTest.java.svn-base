@@ -1,0 +1,110 @@
+package barrysoft.web.tests;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
+import barrysoft.web.WebDownloader;
+import junit.framework.TestCase;
+
+public class WebDownloaderTest extends TestCase {
+
+	public void testDownload() {
+		
+		WebDownloader downloader = new WebDownloader();
+		
+		try {
+			downloader.setUrl("http://it.wikipedia.org/wiki/CSS_(informatica)");
+			String source = new String(downloader.download());
+			
+			assertTrue(source.length() > 0);
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}
+		
+	}
+	
+	public void testDownloadToFile() {
+		
+		WebDownloader downloader = new WebDownloader();
+		
+		try {
+			downloader.setUrl("http://it.wikipedia.org/wiki/CSS_(informatica)");
+			downloader.download(new File("test_page.html"));
+			
+			File f = new File("test_page.html");
+			
+			if (!f.exists())
+				assertTrue("File doesn't exists", false);
+			
+			assertTrue(true);
+			
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}
+		
+	}
+
+	public void testRedirect() {
+		
+		WebDownloader downloader = new WebDownloader();
+		
+		try {
+			downloader.setUrl("http://www.barrysoft.it/SiteV3/Products.asp?ID=10");
+			String source = new String(downloader.download());
+			
+			if (source.contains("Marathon Infinity"))
+				assertTrue(true);
+			else
+				fail("Can't find the string:\n\n"+source);
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}
+		
+	}
+	
+	public final String querySite = "http://www.timeanddate.com/worldclock/city.html?bla=1&bla2=3";
+	
+	public void testQuery() {
+		
+		WebDownloader downloader = new WebDownloader();
+		downloader.addFormElement("n", "215");
+		
+		try {
+			downloader.setUrl(querySite);
+			String source = new String(downloader.download());
+			
+			if (source.contains("Rome, Italy"))
+				assertTrue(true);
+			else
+				fail("Can't find the string:\n\n"+source);
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}
+		
+	}
+	
+	public final String postSite = "http://www.snee.com/xml/crud/posttest.cgi";
+	
+	public void testPost() {
+		
+		WebDownloader downloader = new WebDownloader();
+		downloader.addFormElement("fname", "Masked");
+		downloader.addFormElement("lname", "Man");
+		downloader.setMethod(WebDownloader.METHOD_POST);
+		
+		try {
+			downloader.setUrl(postSite);
+			String source = new String(downloader.download(new File("testPost.html")));
+			
+			if (source.contains("First name: \"Masked\""))
+				assertTrue(true);
+			else
+				fail("Can't find the string:\n\n"+source);
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}
+		
+	}
+	
+}

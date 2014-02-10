@@ -9,7 +9,6 @@
 			<attribute name="javadoc_location" value="jar:file:/home/mk/Development/Libs/Java/rome/www/dist/rome-1.0RC2-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/BarryFramework.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
 	<classpathentry kind="lib" path="lib/hamcrest-core-1.3.jar"/>

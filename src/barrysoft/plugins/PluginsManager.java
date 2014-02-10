@@ -1,0 +1,270 @@
+package barrysoft.plugins;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
+import barrysoft.logs.Logger;
+import barrysoft.utils.FileUtils;
+import barrysoft.utils.JarClassLoader;
+import barrysoft.utils.OSSpecific;
+
+public class PluginsManager <PluginType extends Plugin> {
+	
+	public static final String				DEF_PLUGINS_EXTENSION = ".spi";
+	public static final String				DEF_LANGUAGE = "English";
+	
+	private String							pluginsExtension = DEF_PLUGINS_EXTENSION;
+	private String 							pluginsDirectory;
+	private ArrayList<PluginType>			pluginsList;
+	private String							pluginsLanguage = DEF_LANGUAGE;
+	
+	public PluginsManager() {
+		pluginsList = new ArrayList<PluginType>();
+	}
+	
+	/**
+	 * Constructor for the plugin manager class
+	 * @param pluginsDirectory Plugins directory
+	 */
+	
+	public PluginsManager(String pluginsDirectory) {
+		this();
+		setPluginsDirectory(OSSpecific.formatDirectory(pluginsDirectory));			
+	}
+	
+	/**
+	 * Load the plugins from the specified plugins directory
+	 */
+	
+	public void loadPlugins() throws IllegalArgumentException {
+				
+		String[] pluginsFiles = scanDirectory(getPluginsDirectory());
+		
+		if (pluginsFiles == null)
+			throw new IllegalArgumentException("Listing for directory "+
+					getPluginsDirectory()+" was null, probably wrong path.");
+		
+		// Process the plugin info
+		for (String file : pluginsFiles) {
+			try {
+				
+				addPlugin(new File(getPluginsDirectory() + File.separator + file));
+				
+			} catch (PluginLoadingException e) {
+				
+				Logger.warning(e.getMessage()+"\n\tCause: ("+
+						e.getCause().getClass().getCanonicalName()+") "+
+						e.getCause().getMessage());
+				
+			}
+		}
+		
+	}
+	
+	/**
+	 * Get the number of loaded plugins
+	 * @return Number of loaded plugins
+	 */
+	
+	public int getPluginsCount() {
+		return this.pluginsList.size();
+	}
+	
+	/**
+	 * Scan the plugins directory looking for plugins
+	 * configurations file
+	 * 
+	 * @param directory Directory to scan
+	 * 
+	 * @return Filenames of plugins configuration files
+	 */
+	
+	private String[] scanDirectory(String directory) {
+		
+		File dir = new File(directory);
+		
+		// Create a filter for the plugin config file
+	    FilenameFilter pluginsFilter = new FilenameFilter() {
+	        public boolean accept(File dir, String name) {
+	            return name.endsWith(getPluginsExtension());
+	        }
+	    };
+		
+		return dir.list(pluginsFilter);
+		
+	}
+	
+	
+	public PluginType getPlugin(int number) {
+		return this.pluginsList.get(number);
+	}
+	
+	public ArrayList<PluginType> getPluginsList() {
+		return this.pluginsList;
+	}
+	
+	public PluginType getPluginByName(String name) {
+		
+		for (Iterator<PluginType> i = this.pluginsList.iterator(); i.hasNext(); ) {
+			PluginType cur = i.next();
+			if (cur.getInfo().getName().equals(name)) return cur;
+		}
+		
+		return null;
+		
+	}
+		
+	/**
+	 * Adds a plugin to this plugin manager
+	 * by loading it from its specification
+	 * file.
+	 * 
+	 * @param file The plugin's specification file
+	 * @throws PluginLoadingException If there was an
+	 * 				error while loading the plugin
+	 */
+	
+	public void addPlugin(File file) 
+		throws PluginLoadingException 
+	{
+		
+		if (file == null)
+			throw new NullPointerException("Null plugin configuration file");
+		
+		try {
+			
+			PluginInfo pluginInfo = PluginInfo.loadFromFile(file);
+			PluginType plugin = loadPlugin(pluginInfo,file);
+			
+			plugin.setFile(file);
+			plugin.load();
+			
+			plugin.getLocalization().setCurrentLocalization(getPluginsLanguage());
+			
+			addPlugin(plugin);
+			
+		} catch (FileNotFoundException e) {
+			throw new PluginLoadingException(file, e);
+		} catch (ParserConfigurationException e) {
+			throw new PluginLoadingException(file, e);
+		} catch (SAXException e) {
+			throw new PluginLoadingException(file, e);
+		} catch (IOException e) {
+			throw new PluginLoadingException(file, e);
+		} catch (ClassNotFoundException e) {
+			throw new PluginLoadingException(file, e);
+		} catch (InstantiationException e) {
+			throw new PluginLoadingException(file, e);
+		} catch (IllegalAccessException e) {
+			throw new PluginLoadingException(file, e);
+		}
+		
+	}
+	
+	public void addPlugin(PluginType plugin) {
+		pluginsList.add(plugin);
+	}
+	
+
+	public PluginType loadPlugin(PluginInfo pluginInfo, File pluginFile) 
+		throws ClassNotFoundException, 
+				InstantiationException, 
+				IllegalAccessException, 
+				IOException 
+	{
+    	
+		if (pluginInfo == null)
+			throw new IllegalArgumentException("Null plugin info");
+
+		Class<?> pluginClass = loadPluginClass(pluginInfo, pluginFile);
+		
+		PluginType plugin = loadPlugin(pluginClass);
+		plugin.setInfo(pluginInfo);
+		
+		return plugin;
+		
+	}
+	
+	public Class<?> loadPluginClass(PluginInfo infos, File f) 
+		throws FileNotFoundException,
+			IOException, 
+			ClassNotFoundException 
+	{
+		
+		Class<?> pluginClass;
+		
+		if (infos.getJarName() != null && !infos.getJarName().isEmpty()) {
+			
+			String jarPath = FileUtils.getJarPath(f.getParentFile().getName()+
+					File.separator+infos.getJarName(), getClass());
+			
+			File jarFile = new File(jarPath);
+			
+			if (!jarFile.exists())
+				throw new FileNotFoundException("Can't find jar file for plugin: "+
+						jarFile.getAbsolutePath());
+			
+			JarClassLoader loader = new JarClassLoader(jarFile.getAbsolutePath());
+			
+			pluginClass = loader.loadClass(infos.getJarClass());
+			
+		} else {
+			
+			pluginClass = getClass().getClassLoader().
+							loadClass(infos.getJarClass());
+			
+		}
+		
+		return pluginClass;
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public PluginType loadPlugin(Class<?> pluginClass) 
+		throws InstantiationException, 
+				IllegalAccessException 
+	{
+		
+		PluginType plugin = (PluginType)pluginClass.newInstance();
+		
+		return plugin;
+		
+	}
+
+	public String getPluginsExtension() {
+		return pluginsExtension;
+	}
+
+	public void setPluginsExtension(String pluginsExtension) {
+		this.pluginsExtension = pluginsExtension;
+	}
+
+	public String getPluginsDirectory() {
+		return pluginsDirectory;
+	}
+
+	public void setPluginsDirectory(String pluginsDirectory) {
+		this.pluginsDirectory = pluginsDirectory;
+		Logger.debug("Plugins directory: "+this.pluginsDirectory, Logger.MEDIUM_VERBOSITY);
+	}
+
+	public String getPluginsLanguage() {
+		return pluginsLanguage;
+	}
+
+	public void setPluginsLanguage(String pluginsLanguage) {
+		this.pluginsLanguage = pluginsLanguage;
+		
+		for (PluginType p : pluginsList)
+			p.getLocalization().setCurrentLocalization(pluginsLanguage);
+	}
+	
+}

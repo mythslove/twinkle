@@ -1,0 +1,89 @@
+package barrysoft.application.tests;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import junit.framework.TestCase;
+
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import barrysoft.logs.Logger;
+import barrysoft.logs.LoggerTextual;
+import barrysoft.options.OptionNotFoundException;
+import barrysoft.options.Options;
+
+public class OptionsTest extends TestCase {
+	
+	Object[] values = new Object[] {
+		"value1",
+		true,
+		3.0245,
+		new File("file.txt"),	
+	};
+	
+	public void testOptions() {
+		
+		Logger.setLogger(new LoggerTextual());
+		
+		Options options = new Options();
+		
+		for (int i=0; i < values.length; i++)
+			options.setOption("option"+(i+1), values[i]);
+		
+		checkValues(options);
+		
+		String xml = options.getXML(0);
+		
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		
+		DocumentBuilder db = null;
+		try {
+			db = dbf.newDocumentBuilder();
+		} catch (ParserConfigurationException e1) {
+			fail(e1.getMessage());
+		}
+		
+		Document doc = null;
+		try {
+			doc = db.parse(new InputSource(new StringReader(xml)));
+		} catch (SAXException e) {
+			fail(e.getMessage());
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}
+		
+		Options options2 = new Options();
+		options2.loadFromXML(doc.getFirstChild());
+		
+		checkValues(options2);
+		
+		options2.printOptions();
+				
+	}
+	
+	public void checkValues(Options options) {
+		
+		try {
+			
+			for (int i=0; i < values.length; i++) {
+				
+				assertEquals(values[i], options.getOption("option"+(i+1), 
+						values[i].getClass()).getValue());
+				
+			}
+				
+		} catch (OptionNotFoundException e) {
+			fail(e.getMessage());
+			return;
+		}
+		
+	}
+	
+}

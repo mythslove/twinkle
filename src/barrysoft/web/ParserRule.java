@@ -1,0 +1,589 @@
+package barrysoft.web;
+
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import barrysoft.xml.XMLUtils;
+
+/**
+ * This class represents a rule to be
+ * used by the <code>Parser</code> class.<br>
+ * <br>
+ * A parameter, represented by
+ * the <code>ParserRuleParam</code> class,
+ * is a variable part of a rule that can
+ * be set by manipulating the parameters
+ * object. A rule can have any number of
+ * <code>ParserRuleParam</code> including
+ * none.<br> 
+ * <br>
+ * Parameters can have a variable
+ * number of possible values, this is
+ * useful for example if we want to use
+ * a rule to extract some infos with a
+ * <code>Parser</code> from data with
+ * a recurring structure (for example
+ * a list). In that case one can just
+ * define a general rule and then
+ * add different values to the parameters
+ * in order to get infos for different
+ * objects in the list.<br>
+ * <br>
+ * For example, consider the following
+ * pseudo-HTML list code:
+ * <pre>
+ * [ul]
+ * [li id="id1"]Item1[/li]
+ * [li id="id2"]item2[/li]
+ * [li id="id3"]item3[/li]
+ * ...
+ * [li id="idN"]itemN[/li]
+ * [/ul]
+ * </pre>
+ * One could use a rule like this
+ * <pre>
+ * (?s).*\[li id="(.+?)"\][item][/li].*
+ * </pre>
+ * Then by adding different value to the
+ * parameter <code>item</code> we can
+ * get the <i>id</i> value of the list
+ * members we are looking for.
+ * 
+ * @author Daniele Rapagnani
+ * 
+ * @see Parser
+ *
+ */
+
+public class ParserRule {
+	
+	public final static String XML_ROOT = "rule";
+	public final static String XML_RULE = "rulegex";
+	public final static String XML_QRULE = "qrule";
+	public final static String XML_GROUP = "group";
+	
+	private String 		rule;
+	private String 		quickRule;
+	
+	private Vector<ParserRuleParam> 	params;
+	private Vector<String[]> 			results;
+	
+	private Hashtable<String, Integer>	groupNames;
+
+	public ParserRule() {
+		params = new Vector<ParserRuleParam>();
+		results = new Vector<String[]>();
+		groupNames = new Hashtable<String, Integer>();
+	}
+	
+	/**
+	 * Creates a <code>ParserRule</code>
+	 * object with the given rule.
+	 * 
+	 * @param rule The rule to be used
+	 */
+	
+	public ParserRule(String rule) {
+		this();
+		setRule(rule);
+	}
+	
+	/**
+	 * Creates a <code>ParserRule</code>
+	 * object with the given rule and
+	 * adds the given parameter to the
+	 * parameter's list.
+	 * 
+	 * @param rule The rule to be used
+	 * @param param The parameter to be added
+	 */
+	
+	public ParserRule(String rule, ParserRuleParam param) {
+		this(rule);
+		
+		addParam(param);
+	}
+	
+	/**
+	 * Builds the rule by assembling
+	 * it with the provided parameters.
+	 *  
+	 * @return The assembled rule
+	 * 
+	 * @see #addRuleParam(int, barrysoft.web.Parser.ParserRuleParam)
+	 */
+	
+	public String[] build() {
+		return build(false);
+	}
+	
+	/**
+	 * Builds the rule or the quick
+	 * rule assembling it with the
+	 * provided parameters.
+	 * 
+	 * @param quick Wheather you need
+	 * 				the normal rule or
+	 * 				the quick rule to be
+	 * 				assembled.
+	 * 
+	 * @return The assembled (quick) rule.
+	 */
+	
+	public String[] build(boolean quick) {
+		return build((quick ? getQuickRule() : getRule()));
+	}
+	
+	/**
+	 * Builds a string by assembling
+	 * it with the provided parameters.<br>
+	 * Any occurrence of a parameter's
+	 * place holder will be replaced with
+	 * the corresponding parameter's value.<br>
+	 * A place holder is a string with the
+	 * format <b>[name]</b> where <i>name</i> is
+	 * the name of the corresponding parameter.
+	 * 
+	 * @param str The string to be processed
+	 *  
+	 * @return A list of all the assembled versions
+	 * 			of the string. If only one value per
+	 * 			parameter is present then only one
+	 * 			processed string will be returned.
+	 * 			If <code>str</code> was null than
+	 * 			null will also be returned;
+	 * 
+	 * @see #addRuleParam(barrysoft.web.ParserRuleParam)
+	 */
+	
+	public String[] build(String str) {
+		
+		Vector<String> strs = new Vector<String>();
+		
+		if (params.isEmpty())
+			return new String[] {str};
+		
+		int maxValues = getMaxValuesCount(params);
+		
+		for (int i=0; i < maxValues; i++) {
+			
+			if (str == null) {
+				strs.add(str);
+				continue;
+			}
+			
+			String tmpStr = new String(str);
+			
+			for (ParserRuleParam param : params) {
+				
+				if (param == null)
+					continue;
+				
+				String[] values = param.getValues();
+				
+				if (values == null)
+					continue;
+				
+				String value;
+				
+				if (i <= values.length)
+					value = values[i];
+				else
+					value = values[values.length-1];	
+					
+				tmpStr = tmpStr.replaceAll(String.format("\\[%s\\]", param.getName()), value);
+				
+			}
+			
+			strs.add(tmpStr);
+		}
+		
+		return strs.toArray(new String[strs.size()]);
+		
+	}
+	
+	/**
+	 * Gets the maximum number of
+	 * values among the parameters.
+	 * 
+	 * @param params The parameters to test
+	 * 
+	 * @return The maximum number of possible
+	 * 			values reached by parameters
+	 */
+	
+	public static int getMaxValuesCount(Vector<ParserRuleParam> params) {
+		
+		int maxValues = 0;
+		
+		for (ParserRuleParam param : params) {
+			
+			if (param == null)
+				continue;
+			
+			maxValues = Math.max(maxValues, param.getValues().length);
+		}
+		
+		return maxValues;
+		
+	}
+	
+	/**
+	 * Adds a rule parameter to the rule
+	 * corresponding to the provided
+	 * rule number.
+	 * 
+	 * @param ruleNumber The number of the rule
+	 * 					to which the provided parameter
+	 * 					will be added.
+	 * 
+	 * @param param The parameter to add
+	 * 
+	 */
+	
+	public void addParam(ParserRuleParam param) {
+		params.add(param);
+	}
+	
+	/**
+	 * Gets the first parameter of the
+	 * provided rule that has the provided
+	 * name.
+	 * 
+	 * @param paramName The name of the parameter
+	 * 					to get
+	 * 
+	 * @return The requested parameter
+	 * 
+	 * @throws NoSuchElementException if no parameter
+	 * 			with the name specified was found
+	 */
+	
+	public ParserRuleParam getParam(String paramName) 
+			throws IllegalArgumentException 
+	{		
+		for (ParserRuleParam rp: params)
+			if (rp.getName().equals(paramName))
+				return rp;
+		
+		throw new IllegalArgumentException(String.format("Can't find parameter '%s'.",
+				paramName));
+	}
+	
+	/**
+	 * Gets the number of parameters
+	 * in this rule.
+	 * 
+	 * @return The number of parameters
+	 * 			this rule owns
+	 */
+	
+	public int getParamsCount() {
+		return params.size();
+	}
+	
+	/**
+	 * Deletes all the params added so
+	 * far in this <code>ParserRule</code>
+	 * instance.
+	 *
+	 */
+	
+	public void clearParams() {
+		params.clear();
+	}
+	
+	/**
+	 * Gives a name to the RegEx group
+	 * corresponding to the provided index
+	 * number in the current rule.
+	 * This function can be used to get
+	 * the required results back by name
+	 * when needed.
+	 * 
+	 * @param name Name of the group
+	 * @param number Number of the group starting
+	 * 				 	from 0
+	 * 
+	 * @throws IllegalArgumentException If the
+	 * 			group number is < 0
+	 */
+	
+	public void setGroupName(String name, int number) 
+				throws IllegalArgumentException
+	{
+		if (number < 0)
+			throw new IllegalArgumentException("Can't specify a negative"+
+					" group number: "+number);
+		
+		groupNames.put(name, number);
+	}
+	
+	public int getGroupNumber(String name) 
+			throws NoSuchElementException 
+	{
+		Integer number = groupNames.get(name);
+		
+		if (number == null)
+			throw new NoSuchElementException("Can't find group named: "+name);
+		
+		return number;
+		
+	}
+	
+	/**
+	 * Adds a result to this parser rule.
+	 * 
+	 * @param result The result string to add
+	 */
+	
+	protected void addResult(String[] result) {	
+		if (result == null)
+			return;
+		
+		results.add(result);
+	}
+	
+	/**
+	 * Adds some results to this parser rule.
+	 * 
+	 * @param results Array of the results to
+	 * 					be added.
+	 */
+	
+	protected void addResult(String[][] results) {	
+		
+		if (results == null)
+			return;
+	
+		for (String[] result : results)
+			addResult(result);
+	}
+	
+	/**
+	 * Gets all the results for a given group.
+	 * 
+	 * @return An array containing all the results
+	 * 			for the given group
+	 */
+	
+	public String[][] getResults() {
+		return results.toArray(new String[results.size()][]);
+	}
+	
+	/**
+	 * Gets all the results associated
+	 * to a given named group.
+	 * 
+	 * @param groupName The name of the
+	 * 			group that is owning the
+	 * 			results
+	 * 
+	 * @return An array of results for
+	 * 			the given group
+	 * 
+	 * @throws NotFoundException If the
+	 * 			specified group name
+	 * 			couldn't be found
+	 * @throws IndexOutOfBoundsException
+	 * 			If results for the group
+	 * 			associated to the provided
+	 * 			group name were not present
+	 * 			in any single result.
+	 */
+	
+	public String[] getResults(String groupName) 
+			throws NoSuchElementException, 
+					IndexOutOfBoundsException
+	{
+		
+		int group = getGroupNumber(groupName);
+		
+		String[] groupResults = new String[results.size()];
+		
+		int curResult = 0;
+		
+		for (String[] result : getResults()) {
+			
+			if (result.length < group) {
+				throw new IndexOutOfBoundsException("Can't"+
+						" find group index "+group+
+						" in all the results' data");
+			}
+			
+			groupResults[curResult++] = result[group];
+			
+		}
+		
+		return groupResults;
+		
+	}
+	
+	/**
+	 * Remove all results obtained so far.<br>
+	 * If you need a clean rule every time
+	 * you should clear results after checking
+	 * them.<br>
+	 * This is not done automatically so that
+	 * if you want you can collect results
+	 * in more than one <code>Parser</code>
+	 * execution.
+	 *
+	 */
+	
+	public void clearResults() {
+		results.clear();
+	}
+	
+	/**
+	 * Gets the rule for this object.
+	 * 
+	 * @return The current rule string
+	 * 
+	 * @see #setRule(String)
+	 */
+	
+	public String getRule() {
+		return rule;
+	}
+	
+	/**
+	 * Sets the rule for this object.
+	 * A rule is usually a RegEx that
+	 * can contain any number of place
+	 * holders that will be replaced
+	 * with the appropriate parameters
+	 * values.<br>
+	 * A place holder has the format
+	 * <code>[name]</code> where <i>name</i> 
+	 * is the name of the parameter 
+	 * that will be used to replace the 
+	 * place holder with its value.
+	 * 
+	 * @param rule The rule to be set
+	 * 
+	 * @see #getRule()
+	 */
+
+	public void setRule(String rule) {
+		this.rule = rule;
+	}
+	
+	/**
+	 * Gets the currently set quick
+	 * rule.
+	 * 
+	 * @return The currently set quick
+	 * 			rule
+	 * 
+	 * @see #setQuickRule(String)
+	 */
+
+	public String getQuickRule() {
+		return quickRule;
+	}
+	
+	/**
+	 * Sets the quick rule for this
+	 * <code>ParserRule</code> instance.<br>
+	 * A quick rule is a string that must
+	 * be a substring of the data to be
+	 * tested, and such that if it isn't, 
+	 * the normal rule would fail too.<br>
+	 * The need for this comes from the fact
+	 * that some rules, as RegEx, may take
+	 * some amount of time in the worst case
+	 * scenario (that usually is when the
+	 * expression doesn't match). By specifing
+	 * a quick rule, the string will be tested
+	 * first in order to avoid unnecessary
+	 * RegEx executions if the quick test fails.
+	 * 
+	 * @param quickRule A string that would
+	 * 					make automatically fail
+	 * 					the normal rule if it
+	 * 					wasn't found in the data
+	 */
+
+	public void setQuickRule(String quickRule) {
+		this.quickRule = quickRule;
+	}
+
+	public String getXML(int indentation) {
+		
+		String xml = new String();
+		
+		xml += XMLUtils.openTag(XML_ROOT, indentation);
+		
+		xml += XMLUtils.element(XML_RULE, getRule(), indentation+1);
+		xml += XMLUtils.element(XML_QRULE, getQuickRule(), indentation+1);
+		
+		for(ParserRuleParam param : params)
+			xml += param.getXML(indentation+1);
+		
+		for(String key : groupNames.keySet()) {
+			
+			String[] attrs = new String[] {
+					"name=\""+key+"\"",
+					"number=\""+groupNames.get(key)+"\""
+			};
+			
+			xml += XMLUtils.element(XML_GROUP, "", attrs, 
+					indentation+1);
+			
+		}
+		
+		xml += XMLUtils.closeTag(XML_ROOT, indentation);
+		
+		return xml;
+		
+	}
+
+	public void loadFromXML(Node node) {
+		
+		if (!node.getNodeName().equals(XML_ROOT))
+			throw new IllegalArgumentException("Wrong XML node passed"+
+					" to ParserRule.");
+		
+		NodeList nodes = node.getChildNodes();
+		
+		for (int i=0; i < nodes.getLength(); i++) {
+			
+			Node n = nodes.item(i);
+			
+			if (n.getNodeType() == Node.ELEMENT_NODE) {
+				
+				try {
+					
+					if (n.getNodeName().equals(XML_RULE))
+						setRule(n.getFirstChild().getNodeValue());
+					else if (n.getNodeName().equals(XML_QRULE))
+						setQuickRule(n.getFirstChild().getNodeValue());
+					else if (n.getNodeName().equals(XML_GROUP)) {
+						
+						setGroupName(n.getAttributes().getNamedItem("name").getNodeValue(),
+								Integer.parseInt(n.getAttributes().
+										getNamedItem("number").getNodeValue()));
+						
+					} else if (n.getNodeName().equals(ParserRuleParam.XML_ROOT)) {
+						
+						ParserRuleParam param = new ParserRuleParam();
+						param.loadFromXML(n);
+						addParam(param);
+						
+					}
+					
+				} catch (NullPointerException e) {
+					continue;
+				}
+				
+			}
+			
+		}
+		
+	}
+}

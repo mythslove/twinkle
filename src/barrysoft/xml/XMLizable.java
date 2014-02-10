@@ -1,0 +1,9 @@
+package barrysoft.xml;
+
+import org.w3c.dom.Node;
+
+public interface XMLizable {
+	String getXML(int indentation, String id);
+	String getXML(int indentation);
+	void loadFromXML(Node node);
+}

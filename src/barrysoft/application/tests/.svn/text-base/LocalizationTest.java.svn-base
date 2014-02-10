@@ -1,0 +1,20 @@
+package barrysoft.application.tests;
+
+import java.util.Hashtable;
+
+import barrysoft.localization.Localization;
+import barrysoft.utils.SwingUtils;
+import junit.framework.TestCase;
+
+public class LocalizationTest extends TestCase {
+
+	public void testLocalization() {
+		
+		Localization localization = new Localization();
+		
+		Hashtable<String, String> values = new Hashtable<String, String>();
+
+		
+	}
+	
+}

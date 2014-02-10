@@ -1,0 +1,98 @@
+package barrysoft.web;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javassist.NotFoundException;
+
+import org.w3c.dom.Node;
+
+import barrysoft.xml.XMLUtils;
+import barrysoft.xml.XMLizable;
+
+public class ExtractionJob implements XMLizable {
+
+	public final static String XML_ROOT = "extraction-job";
+	
+	private String name;
+	private Vector<ExtractionStep> steps;
+	
+	public ExtractionJob() {
+		steps = new Vector<ExtractionStep>();
+	}
+	
+	public ExtractionJob(String name) {
+		this();
+		setName(name);
+	}
+	
+	public void execute() 
+			throws IllegalStateException, 
+				MalformedURLException, 
+				IOException 
+	{
+		if (steps.isEmpty())
+			return;
+		
+		for (ExtractionStep step : steps) {
+			step.execute();
+		}
+		
+		ExtractionStep lastStep = steps.get(steps.size()-1);
+		
+		lastStep.getOutput().extract();
+	}
+	
+	public void addStep(ExtractionStep step) {
+		steps.add(step);
+	}
+	
+	public void addStepAt(ExtractionStep step, int index)
+			throws ArrayIndexOutOfBoundsException
+	{
+		steps.add(index, step);
+	}
+	
+	public int getStepsCount() {
+		return steps.size();
+	}
+	
+	public ExtractionStep getStep(int i) 
+			throws ArrayIndexOutOfBoundsException
+	{
+		return steps.get(i);
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getXML(int indentation) {
+		
+		String xml = new String();
+		
+		String[] attr = new String[] {"name = \""+getName()+"\""};
+		
+		xml += XMLUtils.openTag(XML_ROOT, attr, indentation, true, false);
+		
+		for (ExtractionStep step : steps)
+			xml += step.getXML(indentation+1);
+		
+		xml += XMLUtils.closeTag(XML_ROOT, indentation);
+		
+		return xml;
+		
+	}
+
+	public void loadFromXML(Node node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

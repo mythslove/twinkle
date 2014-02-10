@@ -1,0 +1,148 @@
+package barrysoft.xml;
+
+import java.io.File;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import barrysoft.utils.StringUtils;
+
+public class XMLParser {
+
+	public static Document getXMLDocument(String filename) {
+		
+		Document doc = null;
+		
+		try {
+			 
+			  File file = new File(filename);
+			  
+			  DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			  DocumentBuilder db = dbf.newDocumentBuilder();
+			  doc = db.parse(file);
+			  doc.getDocumentElement().normalize();
+			  
+		} catch (Exception e) {
+				e.printStackTrace();
+		}
+		
+		return doc;
+	}
+	
+	public static NodeList getXMLNodes(String filename,String tag) {
+		
+		NodeList nodeLst = null;
+ 
+		Document doc = XMLParser.getXMLDocument(filename);
+		nodeLst = doc.getElementsByTagName(tag);
+		
+		return nodeLst;
+	}
+	
+	/**
+	 * Get a single XML value from a node
+	 * @param first First XML node
+	 * @param element Element name
+	 * @return Value of the specified XML element
+	 */
+	
+	public static String getXMLValue(Element first, String element) {
+		
+		NodeList ElmntLst = first.getElementsByTagName(element);
+	    Element Elmnt = (Element) ElmntLst.item(0);
+	    
+	    NodeList Value = null;
+	    if (Elmnt != null) 
+	    	Value = Elmnt.getChildNodes();
+		
+	    String ValueString = null;
+	    if (Value != null && Value.item(0) != null)
+	    	ValueString = Value.item(0).getNodeValue();
+	    
+	    return (ValueString != null ? ValueString : "");
+	    
+	}
+	
+	/**
+	 * Set a single XML value from a node
+	 * @param first First XML node
+	 * @param element Element name
+	 * @return True on success
+	 */
+	
+	public static boolean setXMLValue(Document doc, Element first,String tag, String element, String value) {
+		
+	    return (setXMLValueGetElm(doc, first, tag, element, value) != null);
+	    
+	}
+	
+	public static Element setXMLValueGetElm(Document doc, Element first,String tag, String element, String value) {
+		
+		//TODO: Aggiusta un po'
+		
+		NodeList ElmntLst = first.getElementsByTagName(element);
+	    Element Elmnt = (Element) ElmntLst.item(0);
+	    
+	    NodeList Value = null;
+	    if (Elmnt != null) {
+	    	
+	    	Value = Elmnt.getChildNodes();
+	    	
+		    if (Value != null) {
+		    	if (Value.item(0) != null) {
+		    		Node n = Value.item(0);
+		    		n.setNodeValue(value);
+		    		
+		    	} else {
+			    	/*Node newnode = doc.createElement(element);
+			    	newnode.setTextContent(value);*/
+			    	NodeList NodeLst = doc.getElementsByTagName(element);
+			    	Node node = NodeLst.item(0);
+			    	node.setNodeValue(value);
+		    	}
+		    } else {
+		    	return null;
+		    }
+		    
+	    } else {
+	    	Node newnode = doc.createElement(element);
+	    	newnode.setTextContent(value);
+	    	NodeList NodeLst = doc.getElementsByTagName(tag);
+	    	Node node = NodeLst.item(0);
+	    	node.appendChild(newnode);
+	    }
+	    
+	    return Elmnt;
+	    
+	}
+	
+	public static boolean writeXMLToFile(Document doc, String filename) {
+		try {
+			
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "no");
+	
+			//initialize StreamResult with File object to save to file
+			StreamResult result = new StreamResult(new File(filename));
+			DOMSource source = new DOMSource(doc);
+			transformer.transform(source, result);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
+	}
+
+}

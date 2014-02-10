@@ -1,0 +1,71 @@
+
+package barrysoft.application;
+public class ApplicationInfo {
+	
+		private String softwareName="JSubsGetter";
+		private String softwareAuthor="Daniele Rapagnani - BarrySoft";
+		private String copyRight="(c) 2010 BarrySoft";
+		private String webSite="http://www.barrysoft.it";
+		private String version = "0.1";
+		private String aboutImage = "about.png";
+		private String revisionNumber="84";
+		private String timeStamp="Wed, 30-June-2010 19:36:11 CEST";
+		private String buildNumber="54";
+		
+		public String getAboutImage() {
+			return aboutImage;
+		}
+		public void setAboutImage(String aboutImage) {
+			this.aboutImage = aboutImage;
+		}
+		public String getBuildNumber() {
+			return buildNumber;
+		}
+		public void setBuildNumber(String buildNumber) {
+			this.buildNumber = buildNumber;
+		}
+		public String getCopyRight() {
+			return copyRight;
+		}
+		public void setCopyRight(String copyRight) {
+			this.copyRight = copyRight;
+		}
+		public String getRevisionNumber() {
+			return revisionNumber;
+		}
+		public void setRevisionNumber(String revisionNumber) {
+			this.revisionNumber = revisionNumber;
+		}
+		public String getSoftwareAuthor() {
+			return softwareAuthor;
+		}
+		public void setSoftwareAuthor(String softwareAuthor) {
+			this.softwareAuthor = softwareAuthor;
+		}
+		public String getSoftwareName() {
+			return softwareName;
+		}
+		public void setSoftwareName(String softwareName) {
+			this.softwareName = softwareName;
+		}
+		public String getTimeStamp() {
+			return timeStamp;
+		}
+		public void setTimeStamp(String timeStamp) {
+			this.timeStamp = timeStamp;
+		}
+		public String getVersion() {
+			return version;
+		}
+		public void setVersion(String version) {
+			this.version = version;
+		}
+		public String getWebSite() {
+			return webSite;
+		}
+		public void setWebSite(String webSite) {
+			this.webSite = webSite;
+		}
+		
+}
+	

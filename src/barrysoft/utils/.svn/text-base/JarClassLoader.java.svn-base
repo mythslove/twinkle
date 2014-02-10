@@ -1,0 +1,55 @@
+package barrysoft.utils;
+
+import java.io.IOException;
+
+import javassist.NotFoundException;
+
+/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+	Copyright (c) Non, Inc. 1999 -- All Rights Reserved
+
+PACKAGE:	JavaWorld
+FILE:		JarClassLoader.java
+
+AUTHOR:		John D. Mitchell, Mar  3, 1999
+
+REVISION HISTORY:
+	Name	Date		Description
+	----	----		-----------
+	JDM	99.03.03   	Initial version.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
+
+
+/**
+ ** JarClassLoader provides a minimalistic ClassLoader which shows how to
+ ** instantiate a class which resides in a .jar file.
+<br><br>
+ **
+ ** @author	John D. Mitchell, Non, Inc., Mar  3, 1999
+ **
+ ** @version 0.5
+ **
+ **/
+
+public class JarClassLoader extends MultiClassLoader {
+	
+    private JarResources	jarResources;
+
+    public JarClassLoader(String jarName) throws IOException {
+		jarResources = new JarResources(jarName);
+	}
+
+    protected byte[] loadClassBytes(String className) {
+
+		className = formatClassName(className);
+	
+		try {
+			return (jarResources.getResource(className));
+		} catch (NotFoundException e) {
+			return null;
+		}
+		
+	}
+  
+}

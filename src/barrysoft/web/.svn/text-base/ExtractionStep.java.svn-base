@@ -1,0 +1,174 @@
+package barrysoft.web;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.Hashtable;
+
+import org.w3c.dom.Node;
+
+import barrysoft.xml.XMLUtils;
+import barrysoft.xml.XMLizable;
+
+import javassist.NotFoundException;
+
+public class ExtractionStep implements XMLizable {
+	
+	public final static String XML_ROOT = "extraction-step";
+	public final static String XML_INPUT = "input";
+	public final static String XML_OUTPUT = "output";
+	public final static String XML_CONNECTION = "connection";
+	
+	public final static String URL_BINDING = "$$URL$$";
+
+	private String name;
+	
+	private Extractor input;
+	private Extractor output;
+	
+	private Hashtable<String, String> connections;
+	
+	public ExtractionStep() {
+		connections = new Hashtable<String, String>();
+	}
+	
+	public ExtractionStep(String name) {
+		this();
+		setName(name);
+	}
+	
+	public ExtractionStep(String name, Extractor input, Extractor output) {
+		this(name);
+		setInput(input);
+		setOutput(output);
+	}
+	
+	public void execute() 
+		throws IllegalStateException, 
+				IOException, 
+				MalformedURLException 
+	{
+		
+		getInput().extract();
+		
+		for (String group : connections.keySet()) {
+			try {
+				execute(group);
+			} catch (NotFoundException e) {
+				throw new RuntimeException("Internal error, group "+
+						"not found: "+group, e);
+			}
+		}
+		
+	}
+	
+	public void execute(String group) 
+			throws NotFoundException, 
+			MalformedURLException 
+	{
+		
+		String param = connections.get(group);
+		
+		if (param == null)
+			throw new NotFoundException("Can't find group named: "+group);
+		
+		Parser in = getInput().getParser();
+		
+		for (int i=0; i < in.getRulesCount(); i++) {
+			ParserRule rule = in.getRule(i);
+			String[] results = rule.getResults(group);
+			
+			processOutputs(param, results);
+		}
+		
+	}
+	
+	public void processOutputs(String param, String[] values) 
+			throws NotFoundException, MalformedURLException 
+	{
+		
+		if (values == null)
+			throw new NullPointerException("Null values while processing outputs.");
+		
+		// Pass as input to the URL if specified
+		if (param.equals(URL_BINDING) && values.length > 0) {
+			getOutput().getDownloader().setUrl(values[0]);
+			return;
+		}
+		
+		Parser out = getOutput().getParser();
+		
+		for (int i=0; i < out.getRulesCount(); i++) {
+			ParserRule rule = out.getRule(i);
+			ParserRuleParam par = rule.getParam(param);
+			
+			for (String value : values)
+				par.addValue(value);
+		}
+		
+	}
+	
+	public void connect(String group, String param) {
+		connections.put(group, param);
+	}
+
+	public Extractor getInput() {
+		return input;
+	}
+
+	public void setInput(Extractor input) {
+		this.input = input;
+	}
+
+	public Extractor getOutput() {
+		return output;
+	}
+
+	public void setOutput(Extractor output) {
+		this.output = output;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getXML(int indentation) {
+		
+		String xml = new String();
+		
+		String[] attr = new String[] {"name = \""+getName()+"\""};
+		
+		xml += XMLUtils.openTag(XML_ROOT, attr, indentation, true, false);
+		
+		xml += XMLUtils.openTag(XML_INPUT, indentation+1);
+		xml += getInput().getXML(indentation+2);
+		xml += XMLUtils.closeTag(XML_INPUT, indentation+1);
+		
+		xml += XMLUtils.openTag(XML_OUTPUT, indentation+1);
+		xml += getOutput().getXML(indentation+2);
+		xml += XMLUtils.closeTag(XML_OUTPUT, indentation+1);
+			
+		for (String group : connections.keySet()) {
+			
+			attr = new String[] {"group = \""+group+"\"",
+					"param = \""+connections.get(group)+"\""};
+			
+			xml += XMLUtils.element(XML_CONNECTION, null,attr,indentation+1);
+			
+		}
+		
+		xml += XMLUtils.closeTag(XML_ROOT, indentation);
+		
+		return xml;
+		
+	}
+
+	public void loadFromXML(Node node) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+}

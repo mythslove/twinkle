@@ -1,0 +1,50 @@
+package barrysoft.utils;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+
+import barrysoft.logs.Logger;
+
+public class GenericUtils {
+	
+	public static char[] concatCharArrays(ArrayList<char[]> list, ArrayList<Integer> slist) {
+		
+		if (list.size() != slist.size()) {
+			Logger.error("Not enough size parameters in concatCharArrays");
+			return null;
+		}
+		
+		int size = 0;
+		for(int i=0; i < slist.size(); i++) {
+			size += slist.get(i);
+		}
+		
+		char[] result = new char[size];
+		
+		int offset = 0;
+		for(int i=0; i < list.size(); i++) {
+			System.arraycopy(list.get(i), 0, result, offset, slist.get(i));
+			offset += slist.get(i);
+		}
+		
+		return result;
+		
+	}
+	
+	//TODO: Better way to do this
+	
+	public static String getDateDifference(Date d1, Date d2) {
+		long m1 = d1.getTime();
+		long m2 = d2.getTime();
+		
+		long delta = m1 - m2;
+		
+		long hours = delta / (60 * 60 * 1000);
+		long days = delta / (24 * 60 * 60 * 1000);
+		
+		return days+" days "+hours+" hours";
+	}
+
+
+}

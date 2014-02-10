@@ -1,0 +1,107 @@
+package barrysoft.options;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import javassist.NotFoundException;
+
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+
+import barrysoft.utils.ReflectionUtils;
+import barrysoft.xml.XMLUtils;
+import barrysoft.xml.XMLizable;
+
+public class Option<T> implements XMLizable {
+	
+	public final static String XML_ROOT = "option";
+	
+	private String 			name;
+	private T 				value;
+	
+	public Option() {}
+	
+	public Option(String name, T value) {
+		setName(name);
+		setValue(value);
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public T getValue() {
+		return value;
+	}
+	
+	public void setValue(T value) {
+		this.value = value;
+	}
+
+	public String getXML(int indentation) {
+		
+		String[] attributes = new String[2];
+		
+		attributes[0] = String.format("name=\"%s\"", getName());
+		attributes[1] = String.format("type=\"%s\"",
+				getValue().getClass().getCanonicalName());
+		
+		return XMLUtils.element(XML_ROOT, getValue().toString(), 
+								attributes, indentation);
+		
+	}
+
+	@SuppressWarnings("unchecked")
+	public void loadFromXML(Node node)
+	{
+		
+		if (!node.getNodeName().equals(XML_ROOT))
+			throw new IllegalArgumentException("Wrong node passed to an ApplicationOption: "+
+					node.getNodeName());
+		
+		NamedNodeMap attributes = node.getAttributes();
+		
+		if (attributes == null)
+			throw new IllegalArgumentException("No node attributes found while loading option.");
+		
+		setName(attributes.getNamedItem("name").getNodeValue());
+		
+		String className = attributes.getNamedItem("type").getNodeValue();
+
+		String value;
+		
+		try {
+			value = node.getFirstChild().getNodeValue();
+		} catch (NullPointerException e) {
+			throw new NullPointerException("No node value found while loading option.");
+		}
+		
+		Class<?> optClass = null;
+		
+		try {
+			
+			optClass = Option.class.getClassLoader().loadClass(className);
+			Constructor<?> c = ReflectionUtils.getConstructorFor(optClass, String.class);			
+			setValue((T)c.newInstance(new Object[] {value}));
+			
+		} catch (NotFoundException e) {
+			throw new RuntimeException("Can't load option value for: "+getName(), e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException("Can't load option value for: "+getName(), e);
+		} catch (InstantiationException e) {
+			throw new RuntimeException("Can't load option value for: "+getName(), e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Can't load option value for: "+getName(), e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException("Can't load option value for: "+getName(), e);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("Can't load option value for: "+getName(), e);
+		}
+		
+	}
+		
+}

@@ -1,0 +1,289 @@
+package barrysoft.utils;
+
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Vector;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.border.EmptyBorder;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.explodingpixels.macwidgets.LabeledComponentGroup;
+import com.explodingpixels.macwidgets.MacWidgetFactory;
+import com.explodingpixels.macwidgets.UnifiedToolBar;
+
+import barrysoft.logs.Logger;
+import barrysoft.utils.OSSpecific;
+import barrysoft.xml.XMLParser;
+
+public class SwingUtils {
+	
+	public final static String languageExt = ".lang";
+	
+	static public void addComponentToHashtable(Hashtable<String, ActionListener> list,
+			  int order,
+			  String compName,
+			  String[] compInfo, 
+			  ActionListener a)
+	{
+		String compInfos = new String();
+		for(int i=0; i < compInfo.length; i++) {
+			compInfos += compInfo[i]+":";
+		}
+		
+		compInfos = compInfos.substring(0, compInfos.length()-1);
+		
+		addComponentToHashtable(list, order, compName, compInfos, a);
+	}
+	
+	static public void addComponentToHashtable(Hashtable<String, ActionListener> list,
+									  int order,
+									  String compName,
+									  String compInfo, 
+									  ActionListener a) 
+	{
+		
+		if (a == null) {
+			list.put(Integer.toString(order)+":"+compName+":"+compInfo, 
+					 new ActionListener() {public void actionPerformed(ActionEvent e) {}});
+		} else {
+			list.put(Integer.toString(order)+":"+compName+":"+compInfo, a);
+		}
+	}
+	
+	static public JPanel createTextFields(Hashtable<String, ActionListener> list, 
+										   ArrayList<JTextField> tlist) {
+		
+		JPanel fieldsPane = new JPanel();
+		fieldsPane.setLayout(new BoxLayout(fieldsPane,BoxLayout.X_AXIS));
+		
+		Vector<String> v = new Vector<String>(list.keySet());
+		Collections.sort(v);
+		
+		for (Iterator<String> i = v.iterator(); i.hasNext();) {
+			
+			String fieldInfo = i.next();
+			String[] fieldInfos = fieldInfo.split(":"); 
+			
+			if (fieldInfos.length < 3) {
+				Logger.error("Can't get component name while creating GUI");
+				return null;
+			}
+			
+			JTextField compField = new JTextField((fieldInfos.length > 3 ? fieldInfos[3] : ""));
+			
+			JLabel compFieldLabel = null;
+			
+			if (OSSpecific.isOSX()) {
+				compField.putClientProperty("JComponent.sizeVariant", "small");
+				compField.putClientProperty("JTextField.variant", "search");
+				compFieldLabel = MacWidgetFactory.createEmphasizedLabel(fieldInfos[2]+": ");
+			} else {
+				compFieldLabel = new JLabel(fieldInfos[2]+": ");
+				
+			}
+			
+	        
+			compField.setName(fieldInfos[1]);
+			compField.addActionListener(list.get(fieldInfo));
+			Dimension d = compField.getMaximumSize();
+			d.height = 30;
+			compField.setMaximumSize(d);
+			
+			fieldsPane.add(compFieldLabel);
+	        fieldsPane.add(compField);
+	        fieldsPane.add(Box.createRigidArea(new Dimension(10, 0)));
+	        
+	        tlist.add(compField);
+	        
+		}
+		
+		fieldsPane.setBorder(new EmptyBorder(new Insets(10, 5, 10, 5)));
+		return fieldsPane;
+      
+	}
+	
+	static public JPanel createButtons(Hashtable<String, ActionListener> list) {
+		
+		JPanel buttonsPane = new JPanel();
+		buttonsPane.setLayout(new BoxLayout(buttonsPane,BoxLayout.X_AXIS));
+        
+		Vector<String> v = new Vector<String>(list.keySet());
+		Collections.sort(v);
+		
+		for (Iterator<String> i = v.iterator(); i.hasNext();) {
+			
+			String buttonInfo = i.next();
+			String[] buttonInfos = buttonInfo.split(":");
+			
+			if (buttonInfos.length < 3) {
+				Logger.error("Can't get component name while creating GUI");
+				return null;
+			}
+			
+			JButton temp = new JButton(buttonInfos[2]);
+	        temp.setName(buttonInfos[1]);
+	        temp.addActionListener(list.get(buttonInfo));
+	        
+	        buttonsPane.add(temp);
+	        buttonsPane.add(Box.createRigidArea(new Dimension(10, 0)));
+	        
+		}
+		
+		buttonsPane.setBorder(new EmptyBorder(new Insets(10, 5, 10, 5)));
+		return buttonsPane;
+        
+	}
+	
+	static public boolean createToolBarButtons(Hashtable<String, ActionListener> list, Object tb) {
+        
+		Vector<String> v = new Vector<String>(list.keySet());
+		Collections.sort(v);
+		
+		ArrayList<JComponent> compList = new ArrayList<JComponent>();
+		
+		for (Iterator<String> i = v.iterator(); i.hasNext();) {
+			
+			String buttonInfo = i.next();
+			String[] buttonInfos = buttonInfo.split(":");
+			
+			if (buttonInfos.length < 3) {
+				Logger.error("Can't get component name while creating GUI");
+				return false;
+			}
+			
+			JButton temp = new JButton(buttonInfos[2]);
+	        temp.setName(buttonInfos[1]);
+	        temp.addActionListener(list.get(buttonInfo));
+	        
+	        if (OSSpecific.isOSX()) {
+	        	temp.putClientProperty("JButton.buttonType", "segmentedTextured");
+	        	
+	        	if (v.get(0).equals(buttonInfo)) {
+	        		Logger.debug(buttonInfo+" = first");
+	        		temp.putClientProperty("JButton.segmentPosition", "first");
+	        	} else if (v.get(v.size()-1).equals(buttonInfo)) {
+	        		Logger.debug(buttonInfo+" = last");
+	        		temp.putClientProperty("JButton.segmentPosition", "last");
+	        	} else {
+	        		Logger.debug(buttonInfo+" = middle");
+	        		temp.putClientProperty("JButton.segmentPosition", "middle");
+	        	}
+	        	
+		        compList.add(temp);
+	        	
+	        } else {
+	            ((JToolBar)tb).add(temp);
+		        ((JToolBar)tb).add(Box.createRigidArea(new Dimension(10, 0)));
+	        }
+	        
+		}
+		
+		if (OSSpecific.isOSX()) {
+			LabeledComponentGroup group = new LabeledComponentGroup("",compList);
+        	((UnifiedToolBar)tb).addComponentToCenter(group.getComponent());
+		}
+		
+		return true;
+        
+	}
+	
+	static public JSeparator createSeparator(int height) {
+        JSeparator s = new JSeparator();
+        Dimension d = s.getMaximumSize();
+        d.height = 10;
+        s.setMaximumSize(d);
+        
+        return s;
+	}
+	
+	static public JTextField getTextField(String name, ArrayList<JTextField> list) {
+		
+		for (int i=0; i<list.size(); i++) {
+			JTextField f = list.get(i);
+			if (f.getName().equals(name)) return f;
+		}
+		
+		return null;
+		
+	}
+	
+	static public String[] listLanguages(String directory) {
+		File dir = new File(directory);
+		
+		// Create a filter for the plugin config file
+	    FilenameFilter langFilter = new FilenameFilter() {
+	        public boolean accept(File dir, String name) {
+	            return name.endsWith(languageExt);
+	        }
+	    };
+		
+		return dir.list(langFilter);
+	}
+	
+	static public boolean loadLocalization(String language, String dir, Hashtable<String,String> list) {
+		
+		
+		
+		String filename = OSSpecific.formatDirectory(dir) + language + ".lang";
+		
+		File f = new File(filename);
+		
+		if (!f.exists()) {
+			Logger.error("Language file "+filename+" does not exists.");
+			return false;
+		}
+		
+		NodeList nodeLst = XMLParser.getXMLNodes(filename, "word");
+		
+		if (nodeLst == null) {
+			Logger.error("Can't load language file: "+filename);
+			return false;
+		}
+			  
+		for (int s = 0; s < nodeLst.getLength(); s++) {
+			
+			   Node fstNode = nodeLst.item(s);
+			    
+			   if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
+				   list.put(XMLParser.getXMLValue((Element)fstNode, "name"),
+						    XMLParser.getXMLValue((Element)fstNode, "value"));
+			   }
+			    				    
+		}
+		
+		return true;
+	}
+	
+	static public String processLocalized(String loc, String[] params) {
+		String newLoc = new String(loc);
+		
+		if (params == null) return newLoc;
+		
+		for (int i=0; i < params.length; i++) {
+			newLoc = newLoc.replaceAll("%"+(i+1), params[i]);
+		}
+		
+		return newLoc;
+	}
+	
+}

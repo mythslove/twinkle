@@ -1,0 +1,157 @@
+package barrysoft.application;
+
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Hashtable;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.UIManager;
+
+import barrysoft.localization.Localization;
+import barrysoft.logs.Logger;
+import barrysoft.utils.SwingUtils;
+
+public class ApplicationDebugFrame extends JFrame implements ApplicationDebugDisplayer {
+
+	private static final long serialVersionUID = -5413007660823857078L;
+	
+	public JList debugList = null;
+	
+	public ArrayList<String> messages = new ArrayList<String>();
+	
+	public Localization localization = null;
+	
+	public ApplicationDebugFrame(String title, int w, int h, Localization loc) {
+		
+		try { 
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		localization = loc;
+		
+        setSize(w, h);
+        setTitle(title);
+        setDefaultCloseOperation(HIDE_ON_CLOSE);
+        
+        Container contentPane = getContentPane();
+        JPanel paneMain = new JPanel();
+        contentPane.add(paneMain);
+        
+        Hashtable<String, ActionListener> buttonsList = new Hashtable<String, ActionListener>(); 
+        
+        //This button is used to clear the debug list
+        SwingUtils.addComponentToHashtable(buttonsList,1,
+				 "bntClear",
+				 localization.getLocalized("BTNDBGCLEAR"), 
+				 new ClearButtonL());
+
+        //This button is used to save the debug to file
+		SwingUtils.addComponentToHashtable(buttonsList,2,
+			 "bntSave",
+			 localization.getLocalized("BTNDBGSAVE"), 
+			 new SaveButtonL());
+        
+		
+		
+        paneMain.setLayout(new BoxLayout(paneMain,BoxLayout.Y_AXIS));
+        createDebugList(paneMain);
+        paneMain.add(createVerbosityList());
+        paneMain.add(SwingUtils.createSeparator(10));
+        paneMain.add(SwingUtils.createButtons(buttonsList));
+        
+        this.setVisible(true);
+        
+	}
+	
+	private JPanel createVerbosityList() {
+		JComboBox verbosityList = new JComboBox(new Object[]{"Lowest","Low","Medium","High","Highest"});
+		verbosityList.setMaximumSize(new Dimension(150,30));
+		verbosityList.setMinimumSize(new Dimension(150,30));
+		verbosityList.addActionListener(new VerbosityL());
+		verbosityList.setSelectedIndex(Logger.getVerboseLevel());
+		
+		JPanel paneVerb = new JPanel();
+		paneVerb.setLayout(new BoxLayout(paneVerb,BoxLayout.X_AXIS));
+		paneVerb.add(new JLabel(localization.getLocalized("TXTVERBLVL")+": "));
+		paneVerb.add(verbosityList);
+		paneVerb.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		
+		return paneVerb;
+	}
+	
+	private void createDebugList(JPanel pane) {
+        this.debugList = new JList();
+        JScrollPane listSP = new JScrollPane(this.debugList);
+        pane.add(listSP);
+	}
+	
+	public void addMessage(String msg) {
+		this.messages.add(msg);
+		this.debugList.setListData(this.messages.toArray());
+		this.debugList.ensureIndexIsVisible(this.messages.size()-1);
+		this.debugList.repaint();
+	}
+	
+	//	Called when the Verbosity level changes
+	public class VerbosityL implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if (e.getActionCommand().equals("comboBoxChanged")) {
+				if (e.getSource() instanceof JComboBox) {
+					JComboBox cb = (JComboBox)e.getSource();
+					Logger.debug("Verbosity level changed to: "+cb.getSelectedItem().toString(), Logger.MEDIUM_VERBOSITY);
+					Logger.setVerboseLevel(cb.getSelectedIndex());
+				}
+			}
+		}
+	}
+	
+	//	Called when the Clear button is pressed
+	public class ClearButtonL implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			debugList.setListData(new Object[]{});
+			messages.clear();
+		}	
+	}
+	
+	//	Called when the Save button is pressed
+	public class SaveButtonL implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			
+			JFileChooser fc = new JFileChooser();
+			fc.setAcceptAllFileFilterUsed(true);
+			fc.setCurrentDirectory(new File("."));
+			
+			int returnVal = fc.showOpenDialog(null);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				try {
+					BufferedWriter buf = new BufferedWriter(new FileWriter(file));
+					for (int i=0; i<messages.size(); i++) {
+						buf.append(messages.get(i)+"\n");
+					}
+					buf.close();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		}	
+	}
+
+}

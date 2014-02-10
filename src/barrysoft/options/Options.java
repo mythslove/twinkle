@@ -1,0 +1,247 @@
+package barrysoft.options;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXParseException;
+
+import barrysoft.logs.Logger;
+import barrysoft.xml.XMLUtils;
+import barrysoft.xml.XMLizable;
+
+public class Options implements XMLizable {
+	
+	public final static String XML_ROOT = "options";
+	
+	private String	configFile;
+	private Hashtable<Class<?>, Vector<Option<?>>> options;
+	
+	public Options() {
+		options = new Hashtable<Class<?>, Vector<Option<?>>>();
+	}
+	
+	public Options(String configFile) {
+		this();
+		setConfigFile(configFile);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <Type> void setOption(String name, Type value) {
+		
+		if (value == null)
+			throw new NullPointerException("Passing null as option's value for "+name);
+		
+		Option<Type> o;
+		try {
+			o = (Option<Type>)getOption(name, value.getClass());
+			o.setValue(value);
+		} catch (OptionNotFoundException e) {
+			o = new Option<Type>(name, value);
+			addOption(o);
+		}
+		
+	}
+	
+	public void addOption(Option<?> option) {
+		
+		Vector<Option<?>> v = options.get(option.getValue().getClass());
+		
+		if (v == null) {
+			v = new Vector<Option<?>>();
+			options.put(option.getValue().getClass(), v);
+		}
+		
+		v.add(option);
+		
+	}
+
+	@SuppressWarnings("unchecked")
+	public <Type> Option<Type> getOption(String name, Class<Type> clazz) 
+		throws OptionNotFoundException
+	{
+		
+		Vector<Option<?>> v = options.get(clazz);
+		
+		if (v == null)
+			throw new OptionNotFoundException(name, clazz);
+		
+		for (Option<?> opt : v) {
+			
+			if (opt == null)
+				continue;
+			
+			if (opt.getName().equals(name))
+				return (Option<Type>)opt;
+		}
+		
+		throw new OptionNotFoundException(name, clazz);
+		
+	}
+	
+	public <Type> Type getOptionValue(String name, Class<Type> clazz) 
+		throws OptionNotFoundException 
+	{
+		Type value = getOptionValue(name, clazz, null);
+		
+		if (value == null)
+			throw new OptionNotFoundException(name, clazz);
+		
+		return value;
+	}
+	
+	public <Type> Type getOptionValue(String name, Class<Type> clazz, Type defaultValue) 
+	{
+		
+		Option<Type> opt;
+		
+		try {
+			opt = getOption(name, clazz);
+		} catch (OptionNotFoundException e) {
+			return defaultValue;
+		}
+			
+		return opt.getValue();
+		
+	}
+	
+	public void printOptions() {
+		
+		for (Class<?> key : options.keySet()) {
+			
+			Vector<Option<?>> v = options.get(key);
+			
+			if (v == null)
+				continue;
+			
+			for (Option<?> opt : v)
+				Logger.log(String.format("(%s)%s = %s",
+						key, opt.getName(), opt.getValue()));
+		}
+		
+	}
+	
+	public boolean loadOptions() {
+		
+		try {
+
+			//Open our XML file
+			File libFile = new File(getConfigFile());
+			if (!libFile.exists()) {
+				Logger.warning("The specified configuration file can't be found: "+getConfigFile());
+				return false;
+			}
+			
+			// Create the document that will hold the XML data
+			DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
+			Document doc = docBuilder.parse(libFile);
+			
+			// Loads the elements
+			Node root = doc.getFirstChild();
+			loadFromXML(root);
+			
+		} catch (SAXParseException e) {
+			Logger.warning("Can't load library: "+getConfigFile());
+			Logger.warning("Parsing error:");
+			Logger.warning("- Type: "+e.getMessage());
+			Logger.warning("- Line: "+e.getLineNumber());
+			Logger.warning("- Column: "+e.getColumnNumber());
+			return false;
+			
+		} catch (Exception e) {
+			Logger.warning("Can't load library: "+getConfigFile());
+			Logger.warning("Error: "+e.getMessage());
+			e.printStackTrace();
+			return false;
+			
+		}
+		 
+		return true;
+	}
+	
+	public boolean saveOptions() {
+		
+		String configurationFile = getConfigFile();
+		
+		File cf = new File(configurationFile);
+		
+		if (!cf.exists()) {
+			try {
+				cf.createNewFile();
+			} catch (IOException e) {
+				Logger.error("Can't create new options file (no disk space, or wrong permissions?");
+				Logger.error(e.getMessage());
+			}
+		}
+	
+		Logger.logToFile(cf.getAbsolutePath(), XMLUtils.getXMLHeader());
+		Logger.logToFile(cf.getAbsolutePath(), getXML(0),true);
+		
+		return true;
+	}
+
+	public String getConfigFile() {
+		return configFile;
+	}
+
+	public void setConfigFile(String configFile) {
+		this.configFile = configFile;
+	}
+
+	public String getXML(int indentation) {
+		return getXML(indentation, null);
+	}
+	
+	public String getXML(int indentation, String id) {
+		
+		String xml = XMLUtils.openTag(XML_ROOT, id, indentation);
+		
+		for (Class<?> key : options.keySet()) {
+			
+			Vector<Option<?>> v = options.get(key);
+			
+			if (v == null)
+				continue;
+			
+			for (Option<?> opt : v) {
+				
+				if (opt == null) 
+					continue;
+				
+				xml += opt.getXML(indentation+1);
+			}
+		}
+		
+		xml += XMLUtils.closeTag(XML_ROOT, indentation);
+		
+		return xml;
+	}
+
+	public void loadFromXML(Node node) {
+		
+		NodeList nodeLst = node.getChildNodes();
+		
+		for (int s = 0; s < nodeLst.getLength(); s++) {
+			
+			Node n = nodeLst.item(s);
+			
+			if (n.getNodeType() == Node.ELEMENT_NODE) {
+				Option<Object> opt = new Option<Object>();
+				opt.loadFromXML(n);
+				
+				addOption(opt);
+			}
+			    				    
+		}
+		
+	}
+	
+}

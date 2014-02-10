@@ -1,0 +1,92 @@
+package barrysoft.configuration;
+
+import java.util.Hashtable;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import barrysoft.xml.XMLUtils;
+import barrysoft.xml.XMLizable;
+
+public class Configuration implements XMLizable {
+	
+	public static final String DEF_XML_ROOT = "configuration";
+
+	private String xmlRoot = DEF_XML_ROOT;
+	private Hashtable<String, XMLizable> configuration;
+	
+	public Configuration() {
+		configuration = new Hashtable<String, XMLizable>();
+	}
+	
+	public Configuration(String xmlRoot) {
+		this();
+		setXmlRoot(xmlRoot);
+	}
+	
+	public void addConfiguration(String xmlElement, XMLizable object) {
+		configuration.put(xmlElement, object);
+	}
+
+	public String getXmlRoot() {
+		return xmlRoot;
+	}
+
+	public void setXmlRoot(String xmlRoot) {
+		this.xmlRoot = xmlRoot;
+	}
+	
+	public String getRootLessXML(int indentation) {
+		
+		String xml = new String();
+		
+		for (String xmlElement : configuration.keySet()) {
+			
+			XMLizable object = configuration.get(xmlElement);
+			xml += object.getXML(indentation);
+			
+		}
+		
+		return xml;
+		
+	}
+
+	public String getXML(int indentation) {
+		
+		String xml = new String();
+		
+		xml += XMLUtils.openTag(getXmlRoot(), indentation);
+		
+		xml += getRootLessXML(indentation+1);
+		
+		xml += XMLUtils.closeTag(getXmlRoot(), indentation);
+		
+		return xml;
+		
+	}
+
+	public void loadFromXML(Node node) {
+		
+		if (!node.getNodeName().equals(getXmlRoot()))
+			throw new IllegalArgumentException("Can't load configuration,"+
+					" wrong node passed: "+node.getNodeName());
+		
+		Document doc = node.getOwnerDocument();
+		
+		for (String xmlElement : configuration.keySet()) {
+			
+			NodeList nodes = doc.getElementsByTagName(xmlElement);
+			
+			if (nodes.getLength() > 0) {
+				node = nodes.item(nodes.getLength()-1);
+				
+				XMLizable object = configuration.get(xmlElement);
+				object.loadFromXML(node);
+				
+			}
+		
+		}
+	}
+	
+}

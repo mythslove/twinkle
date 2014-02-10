@@ -1,0 +1,9 @@
+package barrysoft.application.tests;
+
+public class TestLauncher {
+	
+	public static void main(String[] args) {
+		new TextualApp();
+	}
+
+}
