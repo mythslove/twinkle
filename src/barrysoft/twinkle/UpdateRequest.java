@@ -167,7 +167,7 @@ public class UpdateRequest
 		
 		is = new BufferedInputStream(is);
 		
-		byte[] buffer = new byte[(int)is.available()];
+		byte[] buffer = new byte[is.available()];
 	
 		is.read(buffer, 0, buffer.length);
 		

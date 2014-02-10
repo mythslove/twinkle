@@ -59,7 +59,7 @@ public class Option<T> implements XMLizable {
 				getValue().getClass().getCanonicalName()));
 		
 		return XMLUtils.element(XML_ROOT, getValue().toString(), 
-								(String[]) attributes.toArray(new String[attributes
+								attributes.toArray(new String[attributes
 										.size()]), indentation);
 		
 	}
