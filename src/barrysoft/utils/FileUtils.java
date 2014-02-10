@@ -172,5 +172,6 @@ public class FileUtils {
 		    	if (line != null)
 		    		container.add(line);
 		    }
+		    brd.close();
 	}
 }

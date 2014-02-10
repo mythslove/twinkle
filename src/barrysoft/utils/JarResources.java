@@ -137,6 +137,8 @@ public final class JarResources {
 							Logger.HIGH_VERBOSITY);
 			}
 		    
+		    zis.close();
+		    
 		} catch (NullPointerException e) {
 			return;
 		}
