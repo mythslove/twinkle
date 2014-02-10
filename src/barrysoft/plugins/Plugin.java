@@ -158,7 +158,7 @@ public class Plugin implements PluginsInterface,
 		
 	}
 	
-	public void saveOthers(DataOutputStream dos) throws IOException {}
+	public void saveOthers(DataOutputStream dos) {}
 	
 	public void updateStatus(String status, Integer step, Integer total) {
 		setStatus(status);

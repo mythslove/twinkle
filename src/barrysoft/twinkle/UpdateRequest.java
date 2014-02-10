@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -138,10 +136,6 @@ public class UpdateRequest
 				throw new RuntimeException("Can't read DSA Public Key.",e);
 			} catch (InvalidKeyException e) {
 				throw new RuntimeException("Can't load DSA Public Key as it seems invalid.",e);
-			} catch (NoSuchAlgorithmException e) {
-				throw new RuntimeException("It appears that DSA is not a valid algorithm.",e);
-			} catch (InvalidKeySpecException e) {
-				throw new RuntimeException("Can't load DSA Public Key as it seems invalid.",e);
 			}
 		}
 		else
@@ -158,9 +152,7 @@ public class UpdateRequest
 	protected PublicKey readDSAPublicKey(InputStream is) 
 		throws 	FileNotFoundException,
 				IOException, 
-				InvalidKeyException, 
-				NoSuchAlgorithmException, 
-				InvalidKeySpecException
+				InvalidKeyException
 	{
 		if (is == null)
 			return null;

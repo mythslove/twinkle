@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -44,8 +43,6 @@ public class MD5UpdateValidator implements UpdateValidator
 	{		
 		try {
 			return validate(updateArchive, version.getMd5Sum());
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException("MD5 seems not to be supported!", e);
 		} catch (FileNotFoundException e) {
 			return false;
 		} catch (IOException e) {
@@ -55,8 +52,7 @@ public class MD5UpdateValidator implements UpdateValidator
 	
 	protected boolean validate(File updateArchive, String md5Checksum) 
 		throws 	FileNotFoundException, 
-				IOException, 
-				NoSuchAlgorithmException
+				IOException
 	{
 		if (md5Checksum == null || md5Checksum.isEmpty())
 			return true;
