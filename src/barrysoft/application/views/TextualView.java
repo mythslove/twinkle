@@ -3,7 +3,6 @@ package barrysoft.application.views;
 import java.util.Vector;
 
 import barrysoft.application.Application;
-import barrysoft.application.ApplicationInfo;
 import barrysoft.interaction.InteractionTextual;
 import barrysoft.logs.Logger;
 import barrysoft.logs.LoggerTextual;

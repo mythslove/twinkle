@@ -14,9 +14,8 @@ import java.security.spec.InvalidKeySpecException;
 
 import org.apache.commons.codec.binary.Base64;
 
-import barrysoft.application.ApplicationInfo;
-
 import sun.security.provider.DSAPublicKey;
+import barrysoft.application.ApplicationInfo;
 
 /**
  * <p>This class represents an update request and holds

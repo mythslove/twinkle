@@ -2,8 +2,8 @@ package barrysoft.twinkle.tests.updater;
 
 import java.io.File;
 
-import barrysoft.twinkle.restarter.RestarterOSX;
 import junit.framework.TestCase;
+import barrysoft.twinkle.restarter.RestarterOSX;
 
 public class RestarterOSXTest extends TestCase {
 	

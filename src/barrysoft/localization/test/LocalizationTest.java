@@ -2,8 +2,8 @@ package barrysoft.localization.test;
 
 import java.util.Hashtable;
 
-import barrysoft.localization.Localization;
 import junit.framework.TestCase;
+import barrysoft.localization.Localization;
 
 public class LocalizationTest extends TestCase {
 	

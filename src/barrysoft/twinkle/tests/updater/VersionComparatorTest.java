@@ -1,8 +1,8 @@
 package barrysoft.twinkle.tests.updater;
 
+import junit.framework.TestCase;
 import barrysoft.twinkle.comparator.VersionComparator;
 import barrysoft.twinkle.comparator.VersionComparator.ComparatorResult;
-import junit.framework.TestCase;
 
 public abstract class VersionComparatorTest extends TestCase {
 	

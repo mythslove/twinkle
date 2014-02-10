@@ -15,8 +15,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import barrysoft.localization.Localization;
-import barrysoft.xml.XMLizable;
 import barrysoft.xml.XMLUtils;
+import barrysoft.xml.XMLizable;
 
 public class PluginInfo implements XMLizable {
 

@@ -1,12 +1,5 @@
 package barrysoft.application.tests;
 
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
-import barrysoft.Version;
 import barrysoft.application.Application;
 import barrysoft.application.ApplicationInfo;
 import barrysoft.application.ApplicationInitializationException;

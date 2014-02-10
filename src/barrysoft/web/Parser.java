@@ -1,21 +1,17 @@
 package barrysoft.web;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import barrysoft.logs.Logger;
 import barrysoft.xml.XMLUtils;
-import barrysoft.xml.XMLizable;
 
 /**
  * The <code>Parser</code> class can be used
